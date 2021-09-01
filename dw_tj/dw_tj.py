@@ -3,6 +3,7 @@
 """
 天机SDK-Python
 """
+from io import BytesIO
 import logging
 import time
 
@@ -316,7 +317,7 @@ class DwTj(DwTjBase) :
 
         return self._request("PATCH", self.__projAdvanceSetting, data)
 
-    def dataUpload(self, filepath, modal_type, annotation_type=1, dataset_scene_id=1, sep="/t"):
+    def dataUpload(self, filepath, modal_type, annotation_type=1, dataset_scene_id=1, sep="\\t", max_chunk_size = 10*1024*1024):
         """
         数据集上传封装
         :param filepath: 数据集绝对路径
@@ -329,13 +330,15 @@ class DwTj(DwTjBase) :
         upload_id = self.getUploadId(filepath)
         if upload_id == "":
             return -1, "upload_id is empty"
-        file_path = filepath.replace('\\', '/')
-        file_names = file_path.split('/')
+        # file_path = filepath.replace('\\', '/')
+        file_names = os.path.split(filepath)
         filename = file_names[-1]
         # 上传准备
         prepareData = {}
         prepareData["modal_type"] = modal_type
         prepareData["filename"] = filename
+
+        
         prepareData["upload_id"] = upload_id
 
         resp = self.datasetPrepare(prepareData)
@@ -343,25 +346,36 @@ class DwTj(DwTjBase) :
 
         if resp["data"]["ret"] != 1:
             return -1, resp
+        _chunk_id_list = resp["data"]["chunk_id_list"]
+        chunk_id_list = list()
 
         # 文件上传
-        uploadData = {}
-
-        uploadData["upload_id"] = upload_id
-        uploadData["chunk_id"] = upload_id
-        files = {
-            "file": (os.path.basename(filepath), open(filepath, 'rb'), 'application/octet-stream')
-        }
-        resp = self.fileUpload(files, uploadData)
-        if resp["data"]["ret"] != 1:
-            return -1, resp
-
+        with open(filepath, 'rb') as fp:
+            while 1:
+                chunk = fp.read(max_chunk_size)
+                if not chunk:
+                    break
+                chunk_id = hashlib.md5(chunk).hexdigest()
+                chunk_id_list.append(chunk_id)
+                if chunk_id in _chunk_id_list:
+                    continue
+                uploadData = {}
+                uploadData["upload_id"] = upload_id
+                uploadData["chunk_id"] = chunk_id
+                chunk_fp = BytesIO(chunk)
+                files = {
+                    "file": (chunk_id, chunk_fp, 'application/octet-stream')
+                }
+                resp = self.fileUpload(files, uploadData)
+                chunk_fp.close()
+                if resp["data"]["ret"] != 1:
+                    return -1, resp
         # 数据集上传
         datasetDealData = {}
 
         datasetDealData["filename"] = filename
         datasetDealData["upload_id"] = upload_id
-        datasetDealData["chunk_id_list"] = json.dumps([upload_id])
+        datasetDealData["chunk_id_list"] = json.dumps(chunk_id_list)
         datasetDealData["modal_type"] = modal_type
         datasetDealData["sep"] = sep
         datasetDealData["annotation_type"] = annotation_type
