@@ -265,26 +265,26 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     # 创建sdk客户端
-    client = DwTj(1, "dzbbI3QZnClS35UuYm7kCBMI", "t9BhxrQZgKsaP76iYXl1swzlOhPRDnHf", "http://sdksvr.autotable.172.16.0.15.nip.io:31746", "http://appmng.autotable.172.16.0.15.nip.io:31746")
+    client = DwTj(4, "RrTLKoGrgKRXkSJAstcndNLa", "xJHb3TjOxh1cqVb0seLBEpHDWLA3fYE7", "http://sdksvr.autotable.172.16.0.15.nip.io:31746", "http://appmng.autotable.172.16.0.15.nip.io:31746")
 
     # 上传数据集， 存储数据集id
     filepath = os.path.join(os.path.expandvars('$HOME'), "Downloads", "data_upload_test.csv")
     upload_id = client.getUploadId(filepath)
-    datasetid, msg = client.dataUpload(filepath, 0, max_chunk_size=1*1024*1024)
+    datasetid, msg = client.dataUpload("/Users/up/Downloads/data_upload_test.csv", 0)
     if datasetid < 0:
         print("dataset upload fail", msg)
         exit(0)
     print(datasetid, msg)
 
 
-    # # 开始训练， 存储最优方案
-    # projId, model_id, msg = client.train(datasetid, 0, 0, 221, "is_marry")
-    # if projId < 0 or model_id < 0:
-    #     print("tain fail", msg)
-    #     exit(0)
-    # print(projId, model_id, msg)
+    # 开始训练， 存储最优方案
+    projId, model_id, msg = client.train(datasetid, 0, 0, 221, "is_marry")
+    if projId < 0 or model_id < 0:
+        print("tain fail", msg)
+        exit(0)
+    print(projId, model_id, msg)
 
-    # # 部署最优方案服务， 提供api接口调用
-    # svc_id, msg = client.deploy(projId, model_id)
-    # print("svc_id", svc_id)
+    # 部署最优方案服务， 提供api接口调用
+    svc_id, msg = client.deploy(projId, model_id)
+    print("svc_id", svc_id)
 
