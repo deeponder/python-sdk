@@ -1,6 +1,3 @@
-import warnings
-
-
 class AppPlatformError(Exception):
     """
     Raised by :meth:`Client.request()` for requests that:
@@ -57,5 +54,11 @@ class JobNotFinished(Exception):
     """
     Raised when execution was trying to get a finished resource from a pending
     job, but the job is not finished
+    """
+
+
+class UploadTrainDataError(Exception):
+    """
+
     """
 
