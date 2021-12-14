@@ -6,4 +6,6 @@ from .client import Client
 from .errors import AppPlatformError
 from .models import (
     Dataset,
+    OfflinePrediction,
+    Deployment,
 )
