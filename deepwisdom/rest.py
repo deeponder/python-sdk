@@ -172,6 +172,16 @@ class RESTClientObject(requests.Session):
         # normalized url join
         return urljoin(endpoint, url)
 
+    def raw_request(self, method: str, url, data=None, join_domain=False, headers=None):
+
+        response = super(RESTClientObject, self).request(method, url, data=data,
+                                                         headers=headers,
+                                                         timeout=(self.connect_timeout, self.socket_timeout))
+        if not response:
+            handle_http_error(response)
+
+        return response.json()
+
 
 def _http_message(response):
     # print(response)

@@ -51,6 +51,7 @@ API_URL = enum(
     DEPLOY_RENAME_DEPLOYMENT='sdk/sdksvr/deploy/rename',
     DEPLOY_DELETE_DEPLOYMENT='sdk/sdksvr/deploy/delete',
     DEPLOY_GET_DEPLOYMENT_LOG='sdk/sdksvr/deploy/logs',
+    DEPLOY_GET_SERVICE_API='sdk/sdksvr/deploy/get_api',
 
     DATASET_DOWNLOAD_HOST="http://192.168.50.24:5000/proxy/static/"
 

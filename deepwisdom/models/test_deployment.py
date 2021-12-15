@@ -18,8 +18,9 @@ class TestDeployment(TestCase):
         print(deploy)
 
     def test_get_deployment_detail(self):
-        deploy = Deployment.get_deployment_detail(480)
-        print(json.dumps(deploy))
+        deploy = Deployment.get_deployment_detail(471)
+        print(deploy.status)
+        pass
 
     def test_list_deployments(self):
         deploy = Deployment.list_deployments(3976)
@@ -39,4 +40,19 @@ class TestDeployment(TestCase):
 
     def test_get_deployment_log(self):
         deploy = Deployment.delete_deployments(480)
+        print(deploy)
+
+    def test_get_service(self):
+        deploy = Deployment.get_service(471)
+        print(deploy.status)
+        print(deploy.get_service_status(471))
+        pass
+
+    def test_call_service(self):
+        deploy = Deployment.get_service(471)
+        print(deploy.call_service({}))
+        pass
+
+    def test_get_service_api(self):
+        deploy = Deployment.get_service_api(471)
         print(deploy)

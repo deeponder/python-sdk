@@ -5,8 +5,11 @@
 """
 from typing import List
 from urllib import parse
+import trafaret as t
 from .api_object import APIObject
 from deepwisdom.enums import API_URL
+from deepwisdom._compat import Int, String
+from dataclasses import dataclass
 
 
 class CreateDeployRequest(object):
@@ -52,10 +55,58 @@ class DeploymentInfo(object):
     is_del: int = 0
 
 
+_base_deploy_schema = t.Dict(
+    {
+        t.Key("id"): Int,
+        t.Key("project_id"): Int,
+        t.Key("user_id"): Int,
+        t.Key("name"): String,  # 服务中文名,
+        t.Key("service_name"): String,  # 服务名称-英文,
+        t.Key("model_inst_id"): Int,  # 模型id,
+        t.Key("serverless_infer_id"): Int,  # 服务部署id,
+        # t.Key("infer_task_id"): Int,
+        t.Key("deploy_model"): String,  # 部署模型名称,
+        t.Key("route_path"): String,  # 服务调用URL,
+        t.Key("token"): String,  # 服务调用token,
+        t.Key("token_url"): String,  # 服务调用token,
+        t.Key("status"): Int,
+        t.Key("infer_lock"): Int,
+        t.Key("min_pod"): Int,
+        t.Key("max_pod"): Int,
+        t.Key("create_time"): String,  # 2021-10-27 18:43:12,
+        t.Key("update_time"): String,  # 2021-10-27 18:43:12,
+        t.Key("deploy_time"): String,  # 2021-10-27 18:43:12,
+        t.Key("is_del"): Int,
+    }
+)
+
+
+@dataclass
 class Deployment(APIObject):
+    _converter = _base_deploy_schema.allow_extra("*")
+    id: int = 0
+    project_id: int = 0
+    user_id: int = 0
+    name: str = ''  # 服务中文名
+    service_name: str = ''  # 服务名称-英文
+    model_inst_id: int = 0  # 模型id
+    serverless_infer_id: int = 0  # 服务部署id
+    # infer_task_id: int = 0
+    deploy_model: str = ''  # 部署模型名称
+    route_path: str = ''  # 服务调用URL
+    token: str = ''  # 服务调用token
+    token_url: str = ''
+    status: int = 0
+    infer_lock: int = 0
+    min_pod: int = 0
+    max_pod: int = 0
+    create_time: str = ''  # 2021-10-27 18:43:12
+    update_time: str = ''  # 2021-10-27 18:43:12
+    deploy_time: str = ''  # 2021-10-27 18:43:12
+    is_del: int = 0
 
     @classmethod
-    def create_deployment(cls, options: CreateDeployRequest):
+    def create_deployment(cls, options: CreateDeployRequest) -> "Deployment":
         """创建服务
 
         Args:
@@ -67,12 +118,12 @@ class Deployment(APIObject):
         data = {}
         data.update(options)
         rsp = cls._client._post(API_URL.DEPLOY_CREATE_SERVICE, data)
-        if "data" in rsp:
-            return rsp['data']
+        if "data" in rsp and "ret" in rsp["data"] and len(rsp["data"]["ret"]) == 1:
+            return cls.from_server_data(rsp['data']["ret"][0])
         return None
 
     @classmethod
-    def get_deployment_detail(cls, service_id, **kwargs) -> DeploymentInfo:
+    def get_deployment_detail(cls, service_id, **kwargs) -> "Deployment":
         """获取服务详情
 
         Args:
@@ -83,10 +134,25 @@ class Deployment(APIObject):
         data = {
             "service_id": service_id
         }
-        rsp = cls._client._get(API_URL.DEPLOY_GET_SERVICE_DETAIL, data)
-        if "data" in rsp:
-            return rsp['data']
-        return None
+        rsp = cls._server_data(API_URL.DEPLOY_GET_SERVICE_DETAIL, data)
+        if rsp:
+            return cls.from_server_data(rsp)
+
+    @classmethod
+    def get_service(cls, service_id, **kwargs) -> "Deployment":
+        """获取服务详情
+
+        Args:
+            service_id (int): 服务id
+        Returns:
+            DeploymentInfo: 服务详情
+        """
+        data = {
+            "service_id": service_id
+        }
+        rsp = cls._server_data(API_URL.DEPLOY_GET_SERVICE_DETAIL, data)
+        print(rsp)
+        return cls.from_server_data(rsp)
 
     @classmethod
     def list_deployments(cls, project_id: int, **kwargs) -> List[DeploymentInfo]:
@@ -169,6 +235,27 @@ class Deployment(APIObject):
             "service_id": svc_id
         }
         rsp = cls._client._get(API_URL.DEPLOY_GET_DEPLOYMENT_LOG, data)
+        if "data" in rsp:
+            return rsp['data']
+        return None
+
+    def get_service_status(self, svc_id: int):
+        self.get_deployment_detail(svc_id)
+        return self.status
+
+    def call_service(self, data):
+        header = {
+            "Authorization": "Bearer  {}".format(self.token)
+        }
+        rsp = self._client.raw_request("post", self.token_url, data, headers=header)
+        return rsp
+
+    @classmethod
+    def get_service_api(cls, svc_id: int):
+        data = {
+            "svc_id": svc_id
+        }
+        rsp = cls._client._get(API_URL.DEPLOY_GET_SERVICE_API, data)
         if "data" in rsp:
             return rsp['data']
         return None
