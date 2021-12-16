@@ -2,3 +2,4 @@
 # because the unused imports are on purpose
 
 from .dataset import Dataset
+from .project import Project, TableRelation, AdvanceSetting, TrainSetting

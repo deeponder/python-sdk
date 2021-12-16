@@ -62,3 +62,13 @@ class UploadTrainDataError(Exception):
 
     """
 
+class GetProjectInfoError(Exception):
+    """
+
+    """
+
+class ProjectTrainError(Exception):
+    """
+
+    """
+

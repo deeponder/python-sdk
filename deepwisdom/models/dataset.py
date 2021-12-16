@@ -13,7 +13,6 @@ from .api_object import APIObject
 from deepwisdom.enums import API_URL
 
 
-
 def _get_upload_id(file_path):
     if os.path.isfile(file_path):
         with open(file_path, 'rb') as f:
@@ -36,7 +35,7 @@ _base_dataset_schema = t.Dict(
 
 class Dataset(APIObject):
     """
-    
+
     """
     _converter = _base_dataset_schema.allow_extra("*")
 
@@ -66,15 +65,19 @@ class Dataset(APIObject):
         max_chunk_size=10*1024*1024
     ):
         """
+        从本地上传、创建数据集
+        Args:
+            filename: 本地数据集的绝对路径
+            model_type: 模态类型。 0CSV,1VIDEO,2IMAGE,3SPEECH,4TEXT
+            annotation_type: 标注类型。默认已标注1
+            dataset_scene_id: 场景id。默认1 枚举
+            sep: 表格分隔符。 枚举
+            max_chunk_size: 分片上传的大小
 
-        :param filename:
-        :param model_type:
-        :param annotation_type:
-        :param dataset_scene_id:
-        :param sep:
-        :param max_chunk_size:
-        :return:
+        Returns:
+            Dataset
         """
+
         dataset_id, msg = cls.dataset_upload(filename, model_type, annotation_type,
                                              dataset_scene_id, sep, max_chunk_size)
         if dataset_id < 0:
@@ -102,6 +105,19 @@ class Dataset(APIObject):
         sep,
         max_chunk_size
     ):
+        """
+        数据集上传
+        Args:
+            file_path:
+            model_type:
+            annotation_type:
+            dataset_scene_id:
+            sep:
+            max_chunk_size:
+
+        Returns:
+
+        """
         upload_id = _get_upload_id(file_path)
         if upload_id == "":
             return -1, file_path + " doesn't exist"
@@ -178,3 +194,24 @@ class Dataset(APIObject):
                 return resp["data"]["data_set_id"], "success"
 
             time.sleep(3)
+
+
+class PredictDataset(APIObject):
+    _converter = t.Dict(
+        {
+            t.Key("dataset_id"): Int,
+            t.Key("dataset_name", optional=True): String
+        }
+    ).allow_extra("*")
+
+    def __init__(
+            self,
+            project_id,
+            dataset_id,
+            dataset_name=None
+    ):
+        self.project_id = project_id
+        self.dataset_id = dataset_id
+        self.dataset_name = dataset_name
+
+
