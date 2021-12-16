@@ -17,7 +17,7 @@ def Client(
     domain=None,
 ):
     """
-    sdk客户端
+    api请求客户端
     Args:
         api_key:
         secret_key:
@@ -29,17 +29,19 @@ def Client(
     """
     global _global_client
 
-    config_path = _get_default_config_file()
-    if config_path is None:
-        raise ValueError("Config No Found.")
+    if api_key and appid and secret_key:
+        dwconfig = DeepWisdomClientConfig(
+            appid=appid,
+            api_key=api_key,
+            secret_key=secret_key,
+            domain=domain,
+        )
+    else:
+        config_path = _get_default_config_file()
+        if config_path is None:
+            raise ValueError("Config No Found.")
 
-    dwconfig = _config_from_file(config_path)
-    # dwconfig = DeepWisdomClientConfig(
-    #     api_key="RrTLKoGrgKRXkSJAstcndNLa",
-    #     secret_key="xJHb3TjOxh1cqVb0seLBEpHDWLA3fYE7",
-    #     appid=4,
-    #     domain="http://192.168.50.122:30772"
-    # )
+        dwconfig = _config_from_file(config_path)
 
     _global_client = RESTClientObject.from_config(dwconfig)
 

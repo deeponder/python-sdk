@@ -8,6 +8,8 @@ import deepwisdom as dw
 if __name__ == '__main__':
 
     # logging.basicConfig(level=logging.INFO)
+    api_client = dw.Client()
+    dw.set_client(api_client)
     dataset = dw.Dataset.create_from_file("/Users/up/Downloads/data_upload_test.csv", 0)
     print(dataset.name)
 
