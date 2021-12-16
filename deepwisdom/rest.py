@@ -2,6 +2,7 @@ import json
 import time
 
 import requests
+from urllib import parse
 
 from urllib.parse import urljoin, urlparse
 
@@ -21,6 +22,7 @@ class RESTClientObject(requests.Session):
     """
 
     """
+
     @classmethod
     def from_config(cls, config):
         return cls(
@@ -115,6 +117,7 @@ class RESTClientObject(requests.Session):
         # 获取access_token
         auth_obj = self._auth()
         headers = self._get_auth_headers(headers, auth_obj)
+        headers["Content-Type"] = 'application/x-www-form-urlencoded'
 
         # 增加domain
         if not url.startswith("http") or join_domain:
@@ -123,8 +126,9 @@ class RESTClientObject(requests.Session):
         # tj后端需要的参数
         data["bcode"] = "autotable"
         data["token"] = "Hy+b55u4C9KE8GSKEJ5xhw=="
+        payload = parse.urlencode(data)
 
-        response = super(RESTClientObject, self).request(method, url, data=data,
+        response = super(RESTClientObject, self).request(method, url, data=payload,
                                                          headers=headers,
                                                          timeout=(self.connect_timeout, self.socket_timeout))
         if not response:
@@ -140,6 +144,9 @@ class RESTClientObject(requests.Session):
 
     def _patch(self, url, data=None, join_domain=False, headers=None):
         return self._request("PATCH", url, data, join_domain, headers)
+
+    def _delete(self, url, data=None, join_domain=False, headers=None):
+        return self._request("DELETE", url, data, join_domain, headers)
 
     def _upload(self, url, data, files, join_domain=False, headers=None):
         """
@@ -182,6 +189,16 @@ class RESTClientObject(requests.Session):
         endpoint = self.domain.rstrip("/") + "/"
         # normalized url join
         return urljoin(endpoint, url)
+
+    def raw_request(self, method: str, url, data=None, join_domain=False, headers=None):
+
+        response = super(RESTClientObject, self).request(method, url, data=data,
+                                                         headers=headers,
+                                                         timeout=(self.connect_timeout, self.socket_timeout))
+        if not response:
+            handle_http_error(response)
+
+        return response.json()
 
 
 def _http_message(response):

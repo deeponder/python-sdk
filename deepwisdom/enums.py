@@ -16,7 +16,6 @@ DEFAULT_DOMAIN = ""
 # This is deprecated, to be removed in 3.0.
 MODEL_JOB_STATUS = enum(ERROR="error", INPROGRESS="inprogress", QUEUE="queue")
 
-
 # default time out values in seconds for waiting response from client
 DEFAULT_TIMEOUT = enum(
     CONNECT=6.05,  # time in seconds for the connection to server to be established
@@ -49,6 +48,23 @@ API_URL = enum(
     PROJECT_MODEL_SELECT="sdk/sdksvr/modelselect",  #需要部署的模型信息： /project/model/select
     DATASET_PREDICT_UPLOAD="sdk/sdksvr/predictupload", #离线预测数据集上传： /predict/dataset/upload
     DATASET_PREDICT_LIST="sdk/sdksvr/predictlist",  # 离线预测数据集列表  /predict/datasets
+    PREDICTION_DETAIL="sdk/sdksvr/projeval/detail",
+    PREDICTION_PREDICT="sdk/sdksvr/projeval/predict",
+    PREDICTION_LIST="sdk/sdksvr/projeval/list",
+    PREDICTION_DELETE="sdk/sdksvr/projeval/delete",
+    PREDICTION_DATASET_DOWNLOAD="sdk/sdksvr/projeval/dataset_download",
+    PREDICTION_RESULT_DOWNLOAD="sdk/sdksvr/projeval/result_download",
+
+    DEPLOY_CREATE_SERVICE='sdk/sdksvr/deploy/create',
+    DEPLOY_GET_SERVICE_DETAIL='sdk/sdksvr/deploy/detail',
+    DEPLOY_LIST_DEPLOYMENTS='sdk/sdksvr/deploy/list',
+    DEPLOY_RESIDENT_DEPLOYMENT='sdk/sdksvr/deploy/resident',  # 推理服务常驻
+    DEPLOY_RENAME_DEPLOYMENT='sdk/sdksvr/deploy/rename',
+    DEPLOY_DELETE_DEPLOYMENT='sdk/sdksvr/deploy/delete',
+    DEPLOY_GET_DEPLOYMENT_LOG='sdk/sdksvr/deploy/logs',
+    DEPLOY_GET_SERVICE_API='sdk/sdksvr/deploy/get_api',
+
+    DATASET_DOWNLOAD_HOST="http://192.168.50.24:5000/proxy/static/"
 
 )
 
