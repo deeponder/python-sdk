@@ -11,3 +11,8 @@ try:
     from trafaret import AnyString as String
 except ImportError:
     from trafaret import String  # noqa
+
+try:
+    from trafaret import Any as Any
+except ImportError:
+    from trafaret import Any

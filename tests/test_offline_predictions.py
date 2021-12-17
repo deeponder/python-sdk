@@ -1,6 +1,6 @@
 import json
 from unittest import TestCase
-from .offline_predictions import OfflinePrediction
+from deepwisdom.models.offline_predictions import OfflinePrediction
 
 """
     {
@@ -24,7 +24,7 @@ class TestOfflinePrediction(TestCase):
         print(predict)
 
     def test_predict(self):
-        predict = OfflinePrediction.predict(5734, 5262)
+        predict = OfflinePrediction.predict_by_model_dataset(5734, 5262)
         print(json.dumps(predict))
 
     def test_get_predict_detail(self):

@@ -17,6 +17,8 @@ from .trial import Trial, Metric, PerformanceMetric
 from .solution import Solution
 from .model import ModelInstance
 from .dataset import PredictDataset
+from deepwisdom.models.deployment import Deployment,DeploymentListMember
+from deepwisdom.models.offline_predictions import OfflinePrediction
 
 from typing import Optional, List
 from copy import deepcopy
@@ -300,6 +302,33 @@ class Project(APIObject):
         init_data = [dict(Trial._safe_data(item)) for item in trials]
         return [Trial(**data) for data in init_data]
 
+    def service_list(self) -> List[DeploymentListMember]:
+        """
+        获取项目的服务列表
+        Returns:
+            List[DeploymentInfo]: 服务列表
+        """
+        data = {
+            "project_id": self.project_id
+        }
+        server_data = self._server_data(API_URL.DEPLOY_LIST_DEPLOYMENTS, data)
+        init_data = [DeploymentListMember._filter_data(DeploymentListMember._converter.check(item)) for item in server_data]
+        return [DeploymentListMember(**data) for data in init_data]
+
+    def offline_prediction_list(self) -> List[OfflinePrediction]:
+        """获取项目的预测列表
+        Args:
+            project_id (uint64): 项目id
+
+        """
+        data = {
+            "project_id": self.project_id,
+        }
+
+        server_data = self._server_data(API_URL.PREDICTION_LIST, data)
+        init_data = [OfflinePrediction._filter_data(OfflinePrediction._converter.check(item)) for item in server_data]
+        return [OfflinePrediction(**data) for data in init_data]
+
     def recommended_select_model(self):
         """
         获取推荐的模型
@@ -407,4 +436,3 @@ class TableRelation(object):
         self.main_col_type = main_col_type
         self.relation_col = relation_col
         self.relation_col_type = relation_col_type
-

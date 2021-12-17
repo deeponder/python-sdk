@@ -1,26 +1,40 @@
 # -*- coding: utf-8 -*-
 """
-天机SDK-Python
 模型数据集预测
+
 """
 from typing import Any
 from typing import List
+import trafaret as t
+from deepwisdom.models.api_object import APIObject
+from deepwisdom._compat import Int, String
 
-from .api_object import APIObject
 from deepwisdom.enums import API_URL
+from dataclasses import dataclass
 
 
-class PredictionItem(object):
+_base_prediction_schema = t.Dict(
+    {
+        t.Key("offline_id"): Int,
+        t.Key("offline_status"): Int,
+        t.Key("dataset_id"): Int,
+        t.Key("model_inst_id"): Int,  # 模型id
+        t.Key("dataset_name"): String,  # 服务中文名
+    }
+)
+
+
+@dataclass
+class OfflinePrediction(APIObject):
+    _converter = _base_prediction_schema.allow_extra("*")
     offline_id: int = 0
     offline_status: int = 0
     dataset_name: str = ''
     dataset_id: int = 0
     model_inst_id: int = 0
 
-
-class OfflinePrediction(APIObject):
     @classmethod
-    def list_predictions(cls, project_id: int) -> List[PredictionItem]:
+    def list_predictions(cls, project_id: int) -> List['OfflinePrediction']:
         """获取预测列表
         Args:
             project_id (uint64): 项目id
@@ -30,15 +44,26 @@ class OfflinePrediction(APIObject):
             "project_id": project_id,
         }
 
-        rsp = cls._client._get(API_URL.PREDICTION_LIST, data)
+        server_data = cls._server_data(API_URL.PREDICTION_LIST, data)
+        init_data = [dict(OfflinePrediction._safe_data(item)) for item in server_data]
+        return [OfflinePrediction(**data) for data in init_data]            
+
+    def predict(self):
+        """开始离线预测
+        """
+        data = {
+            "model_inst_id": self.model_inst_id,
+            "dataset_id": self.dataset_id,
+        }
+        rsp = self._client._post(API_URL.PREDICTION_PREDICT, data)
         if "data" in rsp:
             return rsp['data']
         return None
 
+
     @classmethod
-    def predict(cls, model_inst_id: int, dataset_id: int) -> Any:
+    def predict_by_model_dataset(cls, model_inst_id: int, dataset_id: int):
         """开始离线预测
-            http://yapi.deepwisdomai.com/project/11/interface/api/242
 
         Args:
             model_inst_id (int64): 该项目对应的模型实例id
@@ -54,7 +79,7 @@ class OfflinePrediction(APIObject):
         return None
 
     @classmethod
-    def get_predict_detail(cls, offline_id: int):
+    def get_predict_detail(cls, offline_id: int)->'OfflinePrediction':
         """获取离线预测详情
 
         Args:
@@ -63,10 +88,9 @@ class OfflinePrediction(APIObject):
         data = {
             "offline_id": offline_id,
         }
-        rsp = cls._client._get(API_URL.PREDICTION_DETAIL, data)
-        if "data" in rsp:
-            return rsp['data']
-        return None
+        rsp = cls._server_data(API_URL.PREDICTION_DETAIL, data)
+        return rsp
+
 
     @classmethod
     def result_download(cls, project_id: int, target_path: str):
@@ -116,7 +140,6 @@ class OfflinePrediction(APIObject):
     @classmethod
     def delete_predictions(cls, offline_ids: List[int]):
         """批量删除预测
-            http://yapi.deepwisdomai.com/project/11/interface/api/2842
         Args:
             offline_ids (List[int]): 离线预测id数组
         """
