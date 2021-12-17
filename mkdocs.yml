@@ -6,3 +6,4 @@ plugins:
   - search
   - mkdocstrings
   - autorefs
+  - include-markdown
