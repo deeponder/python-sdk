@@ -2,6 +2,7 @@ import json
 import time
 
 import requests
+from urllib import parse
 
 from urllib.parse import urljoin, urlparse
 
@@ -19,8 +20,9 @@ from . import __version__, errors
 
 class RESTClientObject(requests.Session):
     """
-    
+
     """
+
     @classmethod
     def from_config(cls, config):
         return cls(
@@ -50,10 +52,15 @@ class RESTClientObject(requests.Session):
         self.upload_timeout = 60.0 * 20
         self.domain = domain
 
-
     def _auth(self, refresh=False):
         """
-            api access auth
+        OAuth2.0校验
+        Args:
+            refresh:
+
+        Returns:
+            obj: auth信息
+
         """
         # 未过期
         if not refresh:
@@ -78,7 +85,13 @@ class RESTClientObject(requests.Session):
 
     def _get_auth_headers(self, headers=None, auth_obj=None):
         """
-            api request http headers
+        更新接口的请求头
+        Args:
+            headers: 请求头
+            auth_obj: auth信息
+
+        Returns:
+            headers: 更新后的请求头
         """
 
         headers = headers or {}
@@ -89,16 +102,22 @@ class RESTClientObject(requests.Session):
 
     def _request(self, method, url, data=None, join_domain=False, headers=None):
         """
-        :param method:
-        :param url:
-        :param data:
-        :param join_domain:
-        :param headers:
-        :return:
+        请求api封装
+        Args:
+            method: 方法
+            url: url
+            data:
+            join_domain: 是否加域名
+            headers: 请求头
+
+        Returns:
+            response.json()
         """
+
         # 获取access_token
         auth_obj = self._auth()
         headers = self._get_auth_headers(headers, auth_obj)
+        headers["Content-Type"] = 'application/x-www-form-urlencoded'
 
         # 增加domain
         if not url.startswith("http") or join_domain:
@@ -107,8 +126,9 @@ class RESTClientObject(requests.Session):
         # tj后端需要的参数
         data["bcode"] = "autotable"
         data["token"] = "Hy+b55u4C9KE8GSKEJ5xhw=="
+        payload = parse.urlencode(data)
 
-        response = super(RESTClientObject, self).request(method, url, data=data,
+        response = super(RESTClientObject, self).request(method, url, data=payload,
                                                          headers=headers,
                                                          timeout=(self.connect_timeout, self.socket_timeout))
         if not response:
@@ -125,15 +145,23 @@ class RESTClientObject(requests.Session):
     def _patch(self, url, data=None, join_domain=False, headers=None):
         return self._request("PATCH", url, data, join_domain, headers)
 
+    def _delete(self, url, data=None, join_domain=False, headers=None):
+        return self._request("DELETE", url, data, join_domain, headers)
+
     def _upload(self, url, data, files, join_domain=False, headers=None):
         """
-        :param url:
-        :param data:
-        :param files:
-        :param join_domain:
-        :param headers:
-        :return:
+        文件上传
+        Args:
+            url:
+            data:
+            files:
+            join_domain:
+            headers:
+
+        Returns:
+
         """
+
         # 获取access_token
         auth_obj = self._auth()
         headers = self._get_auth_headers(headers, auth_obj)
@@ -155,16 +183,22 @@ class RESTClientObject(requests.Session):
         return response.json()
 
     def _join_endpoint(self, url):
-        """
-        :param url:
-        :return:
-        """
         if url.startswith("/"):
             raise ValueError("Cannot add absolute path {0} to endpoint".format(url))
         # Ensure endpoint always ends in a single slash
         endpoint = self.domain.rstrip("/") + "/"
         # normalized url join
         return urljoin(endpoint, url)
+
+    def raw_request(self, method: str, url, data=None, join_domain=False, headers=None):
+
+        response = super(RESTClientObject, self).request(method, url, data=data,
+                                                         headers=headers,
+                                                         timeout=(self.connect_timeout, self.socket_timeout))
+        if not response:
+            handle_http_error(response)
+
+        return response.json()
 
 
 def _http_message(response):
@@ -176,10 +210,8 @@ def _http_message(response):
             "authenticated. Please make sure your API "
             "token is valid."
         )
-    elif response.headers["content-type"] == "application/json":
-        message = response.json()
     else:
-        message = response.content.decode("ascii")[:79]
+        message = response.content
     return message
 
 
@@ -209,10 +241,10 @@ class DeepWisdomClientConfig(object):
 
     _converter = t.Dict(
         {
-            t.Key("appid"): String(),
-            t.Key("api_key"): String(),
-            t.Key("secret_key"): String(),
-            t.Key("domain"): String(),
+            t.Key("appid"): Int,
+            t.Key("api_key"): String,
+            t.Key("secret_key"): String,
+            t.Key("domain"): String,
         }
     ).allow_extra("*")
     _fields = {k.to_name or k.name for k in _converter.keys}

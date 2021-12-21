@@ -13,7 +13,6 @@ from .api_object import APIObject
 from deepwisdom.enums import API_URL
 
 
-
 def _get_upload_id(file_path):
     if os.path.isfile(file_path):
         with open(file_path, 'rb') as f:
@@ -27,7 +26,8 @@ def _get_upload_id(file_path):
 _base_dataset_schema = t.Dict(
     {
         t.Key("id") >> "dataset_id": Int,
-        t.Key("file_name"): String,
+        t.Key("file_name", optional=True): String,
+        t.Key("name", optional=True): String,
         t.Key("create_time"): String,
         t.Key("file_size"): Int,
         t.Key("file_type"): Int,
@@ -36,45 +36,88 @@ _base_dataset_schema = t.Dict(
 
 class Dataset(APIObject):
     """
-    
+
     """
     _converter = _base_dataset_schema.allow_extra("*")
 
     def __init__(
         self,
-        dataset_id,
-        file_name=None,
-        create_time=None,
-        file_size=None,
-        file_type=None
+        dataset_id: int,
+        file_name: str = None,
+        name: str = None,
+        create_time: str = None,
+        file_size: int = None,
+        file_type: int = None
 
     ):
         self.dataset_id = dataset_id
-        self.name = file_name
+        self.file_name = file_name
+        self.name = name
         self.create_time = create_time
         self.file_size = file_size
         self.file_type = file_type
 
     @classmethod
+    def delete(cls, dataset_ids: list):
+        """
+        批量数据集
+        Args:
+            dataset_ids (list): 需要删除的数据集id列表
+
+        Returns:
+
+        """
+        data = {
+            "dataset_ids": dataset_ids
+        }
+
+        cls._client._delete(API_URL.DATASET_DELETE, data)
+
+    @classmethod
+    def dataset_search(cls, query: str):
+        """
+        查询数据集列表
+        默认只拉一页，至多50条数据, 按更新的时间排序
+        Args:
+            query (str): 模糊查询关键字
+
+        Returns:
+
+        """
+        data = {
+            "query": query,
+            "page": 1,
+            "limit": 50,
+            "sortrules": "-update_time"
+        }
+        server_data = cls._server_data(API_URL.DATASET_LIST, data)
+        init_data = [dict(Dataset._safe_data(item)) for item in server_data]
+        return [Dataset(**data) for data in init_data]
+
+    @classmethod
     def create_from_file(
         cls,
-        filename=None,
-        model_type=None,
-        annotation_type=1,
-        dataset_scene_id=1,
-        sep="\\t",
-        max_chunk_size=10*1024*1024
+        filename: str = None,
+        model_type: int = None,
+        annotation_type: int = 1,
+        dataset_scene_id: int = 1,
+        sep: str = "\\t",
+        max_chunk_size: int = 10*1024*1024
     ):
         """
+        从本地上传、创建数据集
+        Args:
+            filename: 本地数据集的绝对路径
+            model_type: 模态类型。 0CSV,1VIDEO,2IMAGE,3SPEECH,4TEXT
+            annotation_type: 标注类型。默认已标注1
+            dataset_scene_id: 场景id。默认1 枚举
+            sep: 表格分隔符。 枚举
+            max_chunk_size: 分片上传的大小
 
-        :param filename:
-        :param model_type:
-        :param annotation_type:
-        :param dataset_scene_id:
-        :param sep:
-        :param max_chunk_size:
-        :return:
+        Returns:
+            Dataset
         """
+
         dataset_id, msg = cls.dataset_upload(filename, model_type, annotation_type,
                                              dataset_scene_id, sep, max_chunk_size)
         if dataset_id < 0:
@@ -89,19 +132,41 @@ class Dataset(APIObject):
         return cls.from_server_data(server_data)
 
     @classmethod
+    def create_from_dataset_id(cls, dataset_id):
+        data = {
+            "dataset_id": dataset_id
+        }
+        server_data = cls._server_data(API_URL.DATASET_INFO, data)
+
+        return cls.from_server_data(server_data)
+
+    @classmethod
     def _file_upload(cls, url, file, data):
         return cls._client._upload(url, data, file)
 
     @classmethod
     def dataset_upload(
         cls,
-        file_path,
-        model_type,
-        annotation_type,
-        dataset_scene_id,
-        sep,
-        max_chunk_size
+        file_path: str,
+        model_type: int,
+        annotation_type: int,
+        dataset_scene_id: int,
+        sep: str,
+        max_chunk_size: int
     ):
+        """
+        数据集上传
+        Args:
+            file_path:
+            model_type:
+            annotation_type:
+            dataset_scene_id:
+            sep:
+            max_chunk_size:
+
+        Returns:
+
+        """
         upload_id = _get_upload_id(file_path)
         if upload_id == "":
             return -1, file_path + " doesn't exist"
@@ -178,3 +243,43 @@ class Dataset(APIObject):
                 return resp["data"]["data_set_id"], "success"
 
             time.sleep(3)
+
+    @classmethod
+    def modify_dataset(cls, dataset_id: int, new_name: str = ""):
+        """
+        重命名数据集
+        Args:
+            dataset_id (int): 数据集id
+            new_name (str): 新的名字
+
+        Returns:
+
+        """
+
+        data = {
+            "dataset_id": dataset_id,
+            "file_name": new_name
+        }
+
+        cls._client._patch(API_URL.DATASET_MODIFY, data)
+
+
+class PredictDataset(APIObject):
+    _converter = t.Dict(
+        {
+            t.Key("dataset_id"): Int,
+            t.Key("dataset_name", optional=True): String
+        }
+    ).allow_extra("*")
+
+    def __init__(
+            self,
+            project_id: int,
+            dataset_id: int,
+            dataset_name: str = None
+    ):
+        self.project_id = project_id
+        self.dataset_id = dataset_id
+        self.dataset_name = dataset_name
+
+
