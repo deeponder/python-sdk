@@ -1,10 +1,4 @@
-import json
-import time
-import logging
-
-import six
 import trafaret as t
-import deepwisdom.errors as err
 
 from deepwisdom._compat import Int, String
 
@@ -34,10 +28,10 @@ class Solution(APIObject):
         """
         方案类
         Args:
-            project_id (int):
-            trial_no (int):
-            trial_type (int):
-            model_name (str):
+            project_id (int): 项目id
+            trial_no (int): 实验id
+            trial_type (int): 实验类型
+            model_name (str): 模型名称
         """
         self.project_id = project_id
         self.trial_no = trial_no
@@ -48,7 +42,7 @@ class Solution(APIObject):
         """
         这里直接返回详情json, 后续梳理返回结构可细化
         Args:
-            tab_type (int):
+            tab_type (int):  1效果图 2模型参数 3模型特征重要性 4 混淆矩阵 5最优跑测结果 6特征相关性 7特征重要性分布
 
         Returns:
 

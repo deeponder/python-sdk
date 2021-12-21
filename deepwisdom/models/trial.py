@@ -1,17 +1,9 @@
-import json
-import time
-import logging
 
-import six
 import trafaret as t
-import deepwisdom.errors as err
 
 from deepwisdom._compat import Int, String
 
 from .api_object import APIObject
-from deepwisdom.enums import API_URL
-from typing import Optional, List
-
 
 _effect_metric_converter = t.Dict(
     {
@@ -46,6 +38,21 @@ class EffectMetric(APIObject):
             precision=None,
             eer=None
     ):
+        """
+        效果指标
+        Args:
+            auc (float):
+            f1_score (float):
+            macro_f1 (float):
+            micro_f1 (float):
+            weight_f1 (float):
+            mcc (float):
+            ks (float):
+            log_loss (float):
+            acc ():
+            precision (float):
+            eer (float):
+        """
         self.auc = auc
         self.f1_score = f1_score
         self.macro_f1 = macro_f1
@@ -81,6 +88,14 @@ class PerformanceMetric(APIObject):
             flops=None,
             max_mem=None
     ):
+        """
+        性能指标
+        Args:
+            fps (float):
+            ict (float):
+            flops (int):
+            max_mem (float):
+        """
         self.fps = fps
         self.ict = ict
         self.flops = flops
@@ -104,6 +119,12 @@ class Metric(APIObject):
             performance_metrics=None,
             effect_metrics=None
     ):
+        """
+        指标相关
+        Args:
+            performance_metrics (PerformanceMetric): 性能指标
+            effect_metrics (EffectMetric):  效果指标
+        """
         self.performance_metrics = PerformanceMetric(**performance_metrics)
         self.effect_metrics = EffectMetric(**effect_metrics)
 
@@ -129,6 +150,7 @@ class Trial(APIObject):
 
     def __init__(
             self,
+            project_id,
             trial_no,
             trial_type=None,
             status=None,
@@ -140,6 +162,22 @@ class Trial(APIObject):
             is_model=None,
             trial_metric=None
     ):
+        """
+        实验详情
+        Args:
+            project_id (int): 项目id
+            trial_no (int): 实验id
+            trial_type (int): 实验类型
+            status (int): 状态
+            best_metric_key (str): 最佳指标
+            best_metric_value (float): 最佳指标值
+            time_consuming (float): 耗时
+            start_time (float): 实验开始时间
+            end_time (float): 实验结束时间
+            is_model (int):
+            trial_metric (Metric): 实验详细指标
+        """
+        self.project_id = project_id
         self.trial_no = trial_no
         self.trial_type = trial_type
         self.status = status,

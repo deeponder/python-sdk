@@ -43,6 +43,15 @@ class ModelInstance(APIObject):
             model_id,
             model_name=None
     ):
+        """
+        待部署的模型实例
+        Args:
+            project_id (int):
+            trial_no (int): 实验id
+            trial_type (int): 实验类型
+            model_id (int): 模型id
+            model_name (str): 模型名称
+        """
         self.project_id = project_id
         self.trial_no = trial_no
         self.trial_type = trial_type
