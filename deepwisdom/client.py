@@ -4,6 +4,7 @@ import yaml
 from ._version import __version__
 
 from .rest import DeepWisdomClientConfig, RESTClientObject
+from deepwisdom.enums import API_DOMAIN
 
 __all__ = ("Client", "get_client", "set_client")
 
@@ -42,6 +43,9 @@ def Client(
             raise ValueError("Config No Found.")
 
         dwconfig = _config_from_file(config_path)
+
+    if dwconfig.domain is None:
+        dwconfig.domain = API_DOMAIN.API
 
     _global_client = RESTClientObject.from_config(dwconfig)
 
