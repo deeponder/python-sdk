@@ -1,11 +1,10 @@
 import json
+import os
 import string
 import time
 import logging
-import warnings
 from dataclasses import dataclass
 
-import six
 import trafaret as t
 import deepwisdom.errors as err
 
@@ -13,7 +12,7 @@ from deepwisdom._compat import Int, String
 
 from .api_object import APIObject
 from deepwisdom.enums import API_URL, PROJECT_DEFAULT_ADVANCE_SETTING
-from .trial import Trial, Metric, PerformanceMetric
+from .trial import Trial
 from .solution import Solution
 from .model import ModelInstance
 from .dataset import PredictDataset
@@ -83,6 +82,17 @@ class Project(APIObject):
             description=None,
             status=None,
     ):
+        """
+        项目抽象类
+        Args:
+            project_id (int):
+            name (str):
+            user_id (int):
+            model_type (int):
+            task_type (int):
+            description (str):
+            status (int):
+        """
         self.project_id = project_id
         self.name = name
         self.user_id = user_id
@@ -182,12 +192,40 @@ class Project(APIObject):
         return cls.from_server_data(server_data)
 
     @classmethod
-    def update_advance_settings(cls):
+    def delete(cls, proj_ids: list):
         """
+
+        Args:
+            proj_ids (list):
 
         Returns:
 
         """
+
+        data = {
+            "project_id": proj_ids
+        }
+
+        cls._client._delete(API_URL.PROJECT_DELETE, data)
+
+
+    def update_advance_settings(self, advance_settings: Optional[AdvanceSetting]):
+        """
+        项目高级设置更新
+        Returns:
+
+        """
+
+        settings = deepcopy(PROJECT_DEFAULT_ADVANCE_SETTING)
+        advance_settings = advance_settings or {}
+        settings.update(advance_settings)
+
+        data = {
+            "project_id": self.project_id,
+            "advance_settings": json.dumps(settings)
+        }
+
+        self._client._patch(API_URL.PROJECT_ADVANCESETTING_UPDATE, data)
 
     def train(self):
         """
@@ -274,12 +312,30 @@ class Project(APIObject):
         }
         self._client._patch(API_URL.PROJECT_TRAIN, data)
 
-    def dataset_list(self):
+    def terminate_train(self):
         """
-
+        终止训练， /project/terminate/train
         Returns:
 
         """
+        data = {
+            "project_id": self.project_id
+        }
+        self._client._post(API_URL.PROJECT_TERMINATE_TRAIN, data)
+
+    def dataset_list(self):
+        """
+        项目绑定的数据集列表
+        Returns:
+
+        """
+
+        data = {
+            "project_id": self.project_id
+        }
+
+        server_data = self._server_data(API_URL.PROJECT_DATASET_LIST, data)
+        return server_data
 
     def model_list(self):
         """
@@ -300,7 +356,7 @@ class Project(APIObject):
         server_data = self._server_data(API_URL.PROJECT_EFFECT, data)
         trials = server_data["scheme_data"]
         init_data = [dict(Trial._safe_data(item)) for item in trials]
-        return [Trial(**data) for data in init_data]
+        return [Trial(project_id=self.project_id, **data) for data in init_data]
 
     def service_list(self) -> List[DeploymentListMember]:
         """
@@ -395,7 +451,17 @@ class Project(APIObject):
             "project_id": self.project_id
         }
 
-        response = self._client._upload(API_URL.DATASET_PREDICT_UPLOAD, data, filename)
+        file_type = os.path.splitext(filename)[-1][1:]
+        if file_type == "csv" or file_type == "txt":
+            mime_type = 'text/csv'
+        else:
+            mime_type = 'application/octet-stream'
+        with open(filename, 'rb') as f:
+            files = {
+                "file": (os.path.basename(filename), f, mime_type)
+            }
+
+            response = self._client._upload(API_URL.DATASET_PREDICT_UPLOAD, data, files)
 
         dataset = dict(PredictDataset._safe_data(response["data"]))
         return PredictDataset(project_id=self.project_id, **dataset)

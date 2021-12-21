@@ -8,8 +8,8 @@ from setuptools import setup, find_packages
 
 
 try:
-    pkg_name = 'dw_tj'
-    libinfo_py = path.join(pkg_name, '__init__.py')
+    pkg_name = 'deepwisdom'
+    libinfo_py = path.join(pkg_name, '_version.py')
     with open(libinfo_py, 'r', encoding='utf8') as f:
         for line in f:
             if line.startswith('__version__'):
