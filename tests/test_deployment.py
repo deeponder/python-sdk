@@ -31,6 +31,7 @@ class TestDeployment(TestCase):
         for deploy in deploys:
             detail = deploy.get_deployment_detail()
             self.assertEqual(detail.name, deploy.service_name)
+            # detail.delete_deployments([detail.id])
         print(deploys)
 
     def test_resident_deployment(self):

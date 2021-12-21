@@ -7,26 +7,65 @@ from typing import Any
 from typing import List
 import trafaret as t
 from deepwisdom.models.api_object import APIObject
-from deepwisdom._compat import Int, String
+from deepwisdom._compat import Int, String, Any
 
 from deepwisdom.enums import API_URL
 from dataclasses import dataclass
 
 
-_base_prediction_schema = t.Dict(
-    {
-        t.Key("offline_id"): Int,
-        t.Key("offline_status"): Int,
-        t.Key("dataset_id"): Int,
-        t.Key("model_inst_id"): Int,  # 模型id
-        t.Key("dataset_name"): String,  # 服务中文名
-    }
-)
+@dataclass
+class OfflinePredictionDetail(APIObject):
+    _converter = t.Dict(
+        {
+            t.Key("offline_id"): Int,
+            t.Key("ret"): Int,
+            t.Key("status"): Int,
+            t.Key("task_type"): Int,
+            t.Key("models_metrics"): Any,  #
+            t.Key("models_metric_overview"): Any,  #
+            t.Key("models_plot_data"): Any,  #
+            t.Key("models_pred_prob"): Any,  #
+            t.Key("models_preview_data"): Any,  #
+            t.Key("models_preview_data_cols"): Any,  #
+        }
+    ).allow_extra("*")
+    offline_id: int = 0
+    ret: int = 0
+    status: int = 0
+    task_type: int = 0
+    models_metrics: Any = None
+    models_metric_overview: Any = None
+    models_plot_data: Any = None
+    models_pred_prob: Any = None
+    models_preview_data: Any = None
+    models_preview_data_cols: Any = None
+
+    def get_staus(self):
+        """获取离线预测状态
+
+        Returns:
+            Int: 服务状态：1-预测中，2-预测完成，3-预测失败
+        """
+        data = {
+            "offline_id": self.offline_id,
+        }
+        rsp = self._server_data(API_URL.PREDICTION_DETAIL, data)
+        if rsp and "status" in rsp:
+            return rsp['status']
+        return Int(0)
 
 
 @dataclass
 class OfflinePrediction(APIObject):
-    _converter = _base_prediction_schema.allow_extra("*")
+    _converter = t.Dict(
+        {
+            t.Key("offline_id"): Int,
+            t.Key("offline_status"): Int,
+            t.Key("dataset_id"): Int,
+            t.Key("model_inst_id"): Int,  # 模型id
+            t.Key("dataset_name"): String,  # 服务中文名
+        }
+    ).allow_extra("*")
     offline_id: int = 0
     offline_status: int = 0
     dataset_name: str = ''
@@ -46,20 +85,36 @@ class OfflinePrediction(APIObject):
 
         server_data = cls._server_data(API_URL.PREDICTION_LIST, data)
         init_data = [dict(OfflinePrediction._safe_data(item)) for item in server_data]
-        return [OfflinePrediction(**data) for data in init_data]            
+        return [OfflinePrediction(**data) for data in init_data]
 
-    def predict(self):
+    def predict(self) -> "OfflinePredictionDetail":
         """开始离线预测
+
+        Returns:
+            OfflinePredictionDetail: 离线预测实例
         """
         data = {
             "model_inst_id": self.model_inst_id,
             "dataset_id": self.dataset_id,
         }
         rsp = self._client._post(API_URL.PREDICTION_PREDICT, data)
-        if "data" in rsp:
-            return rsp['data']
+        if "data" in rsp and rsp['data']['offline_id']:
+            return self.get_predict_detail(rsp['data']['offline_id'])
         return None
 
+    def get_predict_status(self) -> Int:
+        """获取离线预测状态
+
+        Returns:
+            Int: 服务状态：1-预测中，2-预测完成，3-预测失败
+        """
+        data = {
+            "offline_id": self.offline_id,
+        }
+        rsp = self._server_data(API_URL.PREDICTION_DETAIL, data)
+        if rsp and "status" in rsp:
+            return rsp['status']
+        return Int(0)
 
     @classmethod
     def predict_by_model_dataset(cls, model_inst_id: int, dataset_id: int):
@@ -68,29 +123,36 @@ class OfflinePrediction(APIObject):
         Args:
             model_inst_id (int64): 该项目对应的模型实例id
             dataset_id (int64): 用于离线预测的数据集id
+        Returns:
+            OfflinePredictionDetail: 离线预测实例
         """
         data = {
             "model_inst_id": model_inst_id,
             "dataset_id": dataset_id,
         }
         rsp = cls._client._post(API_URL.PREDICTION_PREDICT, data)
-        if "data" in rsp:
-            return rsp['data']
+        if "data" in rsp and rsp['data']['offline_id']:
+            return cls.get_predict_detail(rsp['data']['offline_id'])
         return None
 
     @classmethod
-    def get_predict_detail(cls, offline_id: int)->'OfflinePrediction':
+    def get_predict_detail(cls, offline_id: int) -> 'OfflinePredictionDetail':
         """获取离线预测详情
 
         Args:
             offline_id (int64): 离线预测id
+        Returns:
+            OfflinePredictionDetail: 离线预测详情
         """
         data = {
             "offline_id": offline_id,
         }
         rsp = cls._server_data(API_URL.PREDICTION_DETAIL, data)
-        return rsp
-
+        if rsp:
+            rsp['offline_id'] = offline_id
+            checked = OfflinePredictionDetail._converter.check(rsp)
+            filtered = OfflinePredictionDetail._filter_data(checked)
+            return OfflinePredictionDetail(**filtered)
 
     @classmethod
     def result_download(cls, project_id: int, target_path: str):

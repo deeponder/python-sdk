@@ -41,7 +41,25 @@ class TestMainProcess(unittest.TestCase):
         model_one = models[0]
         self.assertEqual(model_one.project_id, project.project_id)
         
-        # 离线预测  +  部署  @yilong补充
+        ## 服务部署
+        deployment = dw.Deployment.create_deployment({
+            "project_id": project.project_id,
+            "model_inst_id": model_one.model_id,
+            "name": "灵魂拷问--晚上吃什么",
+            "gpu_num": 1,
+            "gpu_mem": 2,
+            "memory_limit": 2,
+            "min_pod": 1,
+            "max_pod": 2,
+        })
+        rsp_body = deployment.call_service({})
+        self.assertIsNotNone(rsp_body)
+        
+        ## 离线预测
+        pred = dw.OfflinePrediction.predict_by_model_dataset(model_one.model_id,dataset.dataset_id)
+        self.assertIsNotNone(pred)
+        
+        
 
 if __name__ == '__main__':
     unittest.main()
