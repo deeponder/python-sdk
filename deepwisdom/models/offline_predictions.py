@@ -3,12 +3,13 @@
 模型数据集预测
 
 """
+import time
 from typing import Any
 from typing import List
 import trafaret as t
 from deepwisdom.models.api_object import APIObject
 from deepwisdom._compat import Int, String, Any
-
+import deepwisdom.errors as err
 from deepwisdom.enums import API_URL
 from dataclasses import dataclass
 
@@ -40,7 +41,7 @@ class OfflinePredictionDetail(APIObject):
     models_preview_data: Any = None
     models_preview_data_cols: Any = None
 
-    def get_staus(self):
+    def get_status(self):
         """获取离线预测状态
 
         Returns:
@@ -50,9 +51,27 @@ class OfflinePredictionDetail(APIObject):
             "offline_id": self.offline_id,
         }
         rsp = self._server_data(API_URL.PREDICTION_DETAIL, data)
-        if rsp and "status" in rsp:
-            return rsp['status']
+        if rsp:
+            rsp['offline_id'] = self.offline_id
+            checked = self._converter.check(rsp)
+            filtered = self._filter_data(checked)
+            if rsp['ret'] == -1:
+                rsp['status'] = 3
+            self.from_server_data(filtered)
+            return self.status
+
         return Int(0)
+
+    def wait_for_result(self):
+        """等待预测结果
+        Returns:
+            OfflinePredictionDetail: 离线预测实例
+        """
+        status = self.get_status()
+        while status == 1:
+            status = self.get_status()
+            time.sleep(3)
+        return self
 
 
 @dataclass

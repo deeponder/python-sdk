@@ -72,3 +72,7 @@ class ProjectTrainError(Exception):
 
     """
 
+class UploadDatasetError(Exception):
+    """
+
+    """

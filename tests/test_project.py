@@ -33,11 +33,7 @@ class TestProject(unittest.TestCase):
         for srv in srv_list:
             detail = srv.get_deployment_detail()
             self.assertEqual(detail.name, srv.service_name)
-        pred_list = project.offline_prediction_list()
-        print(pred_list)
-        for pred in pred_list:
-            prediction = pred.predict()
-            print(prediction)
+
     def test_trial_list(self):
         """
         获取项目的实验列表
@@ -68,16 +64,6 @@ class TestProject(unittest.TestCase):
         project = dw.Project.create_from_id(project_id)
         predict_dataset = project.upload_predict_dataset(dataset_file_path+dataset_file_name)
         self.assertEqual(project.project_id, predict_dataset.project_id)
-        srv_list = project.service_list()
-        print(srv_list)
-        for srv in srv_list:
-            detail = srv.get_deployment_detail()
-            self.assertEqual(detail.name, srv.service_name)
-        pred_list = project.offline_prediction_list()
-        print(pred_list)
-        for pred in pred_list:
-            prediction = pred.predict()
-            print(prediction)
 
 
 

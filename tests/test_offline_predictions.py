@@ -29,8 +29,9 @@ class TestOfflinePrediction(TestCase):
 
     def test_get_predict_detail(self):
         predict = OfflinePrediction.get_predict_detail(3675)
-        self.assertIsNot(predict.get_staus(), 0)
-        print(predict.get_staus())
+        self.assertIsNot(predict.get_status(), 0)
+        predict.wait_for_result()
+        print(predict.get_status())
 
     def test_result_download(self):
         predict = OfflinePrediction.result_download(3833, "./report.zip")
