@@ -25,7 +25,7 @@ class TestDataset(unittest.TestCase):
         #                        secret_key="xJHb3TjOxh1cqVb0seLBEpHDWLA3fYE7", domain="http://192.168.50.122:30772")
         # dw.set_client(client=api_client)
         dataset = dw.Dataset.create_from_file(dataset_file_path + dataset_file_name, 0)
-        self.assertEqual(dataset_file_name, dataset.file_name)
+        self.assertEqual(dataset_file_name, dataset.dataset_name)
 
         datasets = dw.Dataset.dataset_search(dataset_file_name)
         self.assertEqual(dataset.dataset_id, datasets[0].dataset_id)
@@ -53,7 +53,7 @@ class TestDataset(unittest.TestCase):
         new_name = "new_"+dataset_file_name
         dw.Dataset.modify_dataset(dataset_id, new_name)
         new_dataset = dw.Dataset.create_from_dataset_id(dataset_id)
-        self.assertEqual(new_name, new_dataset.file_name)
+        self.assertEqual(new_name, new_dataset.dataset_name)
 
     def test_delete(self):
         """
