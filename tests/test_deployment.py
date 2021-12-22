@@ -1,22 +1,15 @@
 import json
 from unittest import TestCase
 from deepwisdom.models import Deployment
+from deepwisdom.models.deployment import CreateDeployRequest
 
 deploy_id = 480
 
 
 class TestDeployment(TestCase):
     def test_create_deployment(self):
-        deploy = Deployment.create_deployment({
-            "project_id": 3976,
-            "model_inst_id": 6113,
-            "name": "灵魂拷问--晚上吃什么",
-            "gpu_num": 1,
-            "gpu_mem": 2,
-            "memory_limit": 2,
-            "min_pod": 1,
-            "max_pod": 2,
-        })
+        req = CreateDeployRequest(3973, 6113, "魂拷问--晚上吃什么", 1, 2, 3, 1, 1)
+        deploy = Deployment.create_deployment(req)
         self.assertEqual(deploy.project_id, 3976)
         print(deploy)
 

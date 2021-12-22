@@ -16,7 +16,7 @@ from .trial import Trial
 from .solution import Solution
 from .model import ModelInstance
 from .dataset import PredictDataset
-from deepwisdom.models.deployment import Deployment, DeploymentListMember
+from deepwisdom.models.deployment import Deployment, DeploymentListMember, CreateDeployRequest
 from deepwisdom.models.offline_predictions import OfflinePrediction, OfflinePredictionListMember
 
 from typing import Optional, List
@@ -493,6 +493,11 @@ class Project(APIObject):
             return None
         prediction = OfflinePrediction.predict(model_id, dataset.dataset_id)
         return prediction
+
+    def create_service(self, model_id: int, service_name: str, gpu_num: int, gpu_mem: int, mem: int, min_pod: int,
+                       max_pod: int) -> Deployment:
+        req = CreateDeployRequest(self.project_id, model_id, service_name, gpu_num, gpu_mem, mem, min_pod, max_pod)
+        return Deployment.create_deployment(req)
 
 
 class TableRelation(object):

@@ -29,15 +29,34 @@ from dataclasses import dataclass
 
 
 @dataclass
-class CreateDeployRequest(object):
-    project_id: int = 0  # 项目id
-    model_inst_id: int = 0  # 模型id
-    name: str = ''  # 服务名
+class CreateDeployRequest(dict):
+    project_id: int  # 项目id
+    model_inst_id: int  # 模型id
+    name: str  # 服务名
     gpu_num: int = 0  # gpu数量
     gpu_mem: int = 0  # gpu显存限制MB
     memory_limit: int = 0  # MB 内存限制
     max_pod: int = 0  # 最大pod数
     min_pod: int = 0  # 最少pod数
+
+    # def __setattr__(self, k, v):
+    #     if k in self.__dataclass_fields__:
+    #         self[k] = v
+    #     super().__setattr__(k, v)
+    def __init__(self, project_id, model_inst_id, name, gpu_num=1, gpu_mem=1024, memory_limit=1024, min_pod=1,
+                 max_pod=10):
+        self.project_id = project_id
+        self.model_inst_id = model_inst_id
+        self.name = name
+        self.gpu_num = gpu_num
+        self.gpu_mem = gpu_mem
+        self.memory_limit = memory_limit
+        self.max_pod = max_pod
+        self.min_pod = min_pod
+
+        super().__init__(project_id=project_id, model_inst_id=model_inst_id, name=name, gpu_num=gpu_num,
+                         gpu_mem=gpu_mem, memory_limit=memory_limit, max_pod=max_pod,
+                         min_pod=min_pod)
 
 
 @dataclass
@@ -238,7 +257,7 @@ class Deployment(APIObject):
             return rsp['data']
         return None
 
-    def get_service_status(self)->Int:
+    def get_service_status(self) -> Int:
         """获取服务状态
 
         Returns:
@@ -247,7 +266,7 @@ class Deployment(APIObject):
         self.get_deployment_detail(self.id)
         return self.status
 
-    def call_service(self, data:Any)->Any:
+    def call_service(self, data: Any) -> Any:
         """调用服务
 
         Args:
@@ -256,7 +275,7 @@ class Deployment(APIObject):
         Returns:
             Any: 响应body，get_service_api()可以返回demo
         """
-        
+
         header = {
             "Authorization": "Bearer  {}".format(self.token)
         }
@@ -265,7 +284,7 @@ class Deployment(APIObject):
         return rsp
 
     @classmethod
-    def get_service_api(cls, svc_id: int)->ServiceApiInfo:
+    def get_service_api(cls, svc_id: int) -> ServiceApiInfo:
         """获取服务api
 
         Args:
@@ -311,7 +330,6 @@ class DeploymentListMember(APIObject):
     eval_metric: Any = ''
     service_status: int = 0
     service_create_time: str = ''  # 2021-10-27 18:43:12
-
 
     def get_deployment_detail(self) -> "Deployment":
         """获取服务详情
