@@ -5,49 +5,49 @@ APIs:
   - Methods:
       - POST
     Name: 创建项目
-    UrlPattern: /sdksvr/createproj
+    UrlPattern: /createproj
     Plugins:
       rewrite:
         UrlRewrite: /projects
   - Methods:
       - POST
     Name: 获取服务列表
-    UrlPattern: /sdksvr/svrlist
+    UrlPattern: /svrlist
     Plugins:
       rewrite:
         UrlRewrite: /projects/service
   - Methods:
       - GET
     Name: 获取数据集列表
-    UrlPattern: /sdksvr/datasetlist
+    UrlPattern: /datasetlist
     Plugins:
       rewrite:
         UrlRewrite: /datawarehouse/datasets
   - Methods:
       - POST
     Name: 训练项目
-    UrlPattern: /sdksvr/projtrain
+    UrlPattern: /projtrain
     Plugins:
       rewrite:
         UrlRewrite: /project/train
   - Methods:
       - POST
     Name: 重新训练项目
-    UrlPattern: /sdksvr/projretrain
+    UrlPattern: /projretrain
     Plugins:
       rewrite:
         UrlRewrite: /project/train
   - Methods:
       - GET
     Name: 获取项目信息
-    UrlPattern: /sdksvr/projinfo
+    UrlPattern: /projinfo
     Plugins:
       rewrite:
         UrlRewrite: /project
   - Methods:
       - GET
     Name: 获取训练结果
-    UrlPattern: /sdksvr/trainresult
+    UrlPattern: /trainresult
     Plugins:
       rewrite:
         UrlRewrite: /project/trial/scheme
@@ -55,7 +55,7 @@ APIs:
   - Methods:
       - POST
     Name: 终止训练
-    UrlPattern: /sdksvr/terminatetrain
+    UrlPattern: /terminatetrain
     Plugins:
       rewrite:
         UrlRewrite: /project/terminate/train
@@ -63,7 +63,7 @@ APIs:
   - Methods:
       - PATCH
     Name: 更新项目的高级设置
-    UrlPattern: /sdksvr/projsetting
+    UrlPattern: /projsetting
     Plugins:
       rewrite:
         UrlRewrite: /project/advance_settings
@@ -71,7 +71,7 @@ APIs:
   - Methods:
       - DELETE
     Name: 删除项目
-    UrlPattern: /sdksvr/deleteproj
+    UrlPattern: /deleteproj
     Plugins:
       rewrite:
         UrlRewrite: /projects
@@ -79,7 +79,7 @@ APIs:
   - Methods:
       - GET
     Name: 项目下的数据集列表
-    UrlPattern: /sdksvr/projdatasets
+    UrlPattern: /projdatasets
     Plugins:
       rewrite:
         UrlRewrite: /project/dataset
@@ -87,7 +87,7 @@ APIs:
   - Methods:
       - POST
     Name: 离线数据集上传
-    UrlPattern: /sdksvr/predictupload
+    UrlPattern: /predictupload
     Plugins:
       rewrite:
         UrlRewrite: /predict/dataset/upload
@@ -95,7 +95,7 @@ APIs:
   - Methods:
       - GET
     Name: 离线数据集列表
-    UrlPattern: /sdksvr/predictlist
+    UrlPattern: /predictlist
     Plugins:
       rewrite:
         UrlRewrite: /predict/datasets
@@ -103,105 +103,105 @@ APIs:
   - Methods:
       - POST
     Name: 项目评估
-    UrlPattern: /sdksvr/projeval
+    UrlPattern: /projeval
     Plugins:
       rewrite:
         UrlRewrite: /project/eval
   - Methods:
       - GET
     Name: 获取预测详情
-    UrlPattern: /sdksvr/projeval/detail
+    UrlPattern: /projeval/detail
     Plugins:
       rewrite:
         UrlRewrite: /project/eval
   - Methods:
       - POST
     Name: 发起预测
-    UrlPattern: /sdksvr/projeval/predict
+    UrlPattern: /projeval/predict
     Plugins:
       rewrite:
         UrlRewrite: /project/eval
   - Methods:
       - GET
     Name: 获取预测列表
-    UrlPattern: /sdksvr/projeval/list
+    UrlPattern: /projeval/list
     Plugins:
       rewrite:
         UrlRewrite: /project/evals
   - Methods:
       - DELETE
     Name: 删除预测
-    UrlPattern: /sdksvr/projeval/delete
+    UrlPattern: /projeval/delete
     Plugins:
       rewrite:
         UrlRewrite: /project/eval
   - Methods:
       - GET
     Name: 离线预测数据集下载
-    UrlPattern: /sdksvr/projeval/dataset_download
+    UrlPattern: /projeval/dataset_download
     Plugins:
       rewrite:
         UrlRewrite: /project/eval/download
   - Methods:
       - GET
     Name: 项目预测报告下载
-    UrlPattern: /sdksvr/projeval/result_download
+    UrlPattern: /projeval/result_download
     Plugins:
       rewrite:
         UrlRewrite: /project/eval/zip/download
   - Methods:
       - POST
     Name: 创建推理服务
-    UrlPattern: /sdksvr/infersvr
+    UrlPattern: /infersvr
     Plugins:
       rewrite:
         UrlRewrite: /project/infer
   - Methods:
       - POST
     Name: 推理服务启停
-    UrlPattern: /sdksvr/svropt
+    UrlPattern: /svropt
     Plugins:
       rewrite:
         UrlRewrite: /project/service/operation
   - Methods:
       - POST
     Name: 更新项目高级设计
-    UrlPattern: /sdksvr/projadvancesetting
+    UrlPattern: /projadvancesetting
     Plugins:
       rewrite:
         UrlRewrite: /project/advance_settings
   - Methods:
       - POST
     Name: 获取模型信息
-    UrlPattern: /sdksvr/trainmodelinfo
+    UrlPattern: /trainmodelinfo
     Plugins:
       rewrite:
         UrlRewrite: /project/model/select
   - Methods:
       - POST
     Name: 准备数据集
-    UrlPattern: /sdksvr/datasetprepare
+    UrlPattern: /datasetprepare
     Plugins:
       rewrite:
         UrlRewrite: /dataset/prepare
   - Methods:
       - POST
     Name: 上传数据集文件
-    UrlPattern: /sdksvr/fileupload
+    UrlPattern: /fileupload
     Plugins:
       rewrite:
         UrlRewrite: /file/upload
   - Methods:
       - POST
     Name: 更新数据集文件
-    UrlPattern: /sdksvr/datasetupload
+    UrlPattern: /datasetupload
     Plugins:
       rewrite:
         UrlRewrite: /dataset/upload
   - Methods:
       - GET
     Name: 获取数据集详情
-    UrlPattern: /sdksvr/datasetinfo
+    UrlPattern: /datasetinfo
     Plugins:
       rewrite:
         UrlRewrite: /datawarehouse/dataset/info
@@ -209,7 +209,7 @@ APIs:
   - Methods:
       - GET
     Name: 数据集搜索
-    UrlPattern: /sdksvr/datasetlist
+    UrlPattern: /datasetlist
     Plugins:
       rewrite:
         UrlRewrite: /datawarehouse/datasets
@@ -217,7 +217,7 @@ APIs:
   - Methods:
       - PATCH
     Name: 数据集修改
-    UrlPattern: /sdksvr/datasetmodify
+    UrlPattern: /datasetmodify
     Plugins:
       rewrite:
         UrlRewrite: /datawarehouse/dataset
@@ -225,7 +225,7 @@ APIs:
   - Methods:
       - DELETE
     Name: 数据集删除
-    UrlPattern: /sdksvr/datasetdelete
+    UrlPattern: /datasetdelete
     Plugins:
       rewrite:
         UrlRewrite: /datawarehouse/datasets
@@ -233,56 +233,56 @@ APIs:
   - Methods:
       - POST
     Name: 创建推理服务
-    UrlPattern: /sdksvr/deploy/create
+    UrlPattern: /deploy/create
     Plugins:
       rewrite:
         UrlRewrite: /project/infer
   - Methods:
       - GET
     Name: 获取服务详情
-    UrlPattern: /sdksvr/deploy/detail
+    UrlPattern: /deploy/detail
     Plugins:
       rewrite:
         UrlRewrite: /services/info
   - Methods:
       - GET
     Name: 获取服务部署列表
-    UrlPattern: /sdksvr/deploy/list
+    UrlPattern: /deploy/list
     Plugins:
       rewrite:
         UrlRewrite: /project/services
   - Methods:
       - POST
     Name: 切换服务常驻状态
-    UrlPattern: /sdksvr/deploy/resident
+    UrlPattern: /deploy/resident
     Plugins:
       rewrite:
         UrlRewrite: /project/service/operation
   - Methods:
       - DELETE
     Name: 删除服务
-    UrlPattern: /sdksvr/deploy/delete
+    UrlPattern: /deploy/delete
     Plugins:
       rewrite:
         UrlRewrite: /project/infer
   - Methods:
       - PATCH
     Name: 重命名服务
-    UrlPattern: /sdksvr/deploy/rename
+    UrlPattern: /deploy/rename
     Plugins:
       rewrite:
         UrlRewrite: /project/infer
   - Methods:
       - GET
     Name: 获取服务日志
-    UrlPattern: /sdksvr/deploy/logs
+    UrlPattern: /deploy/logs
     Plugins:
       rewrite:
         UrlRewrite: /project/service/logs
   - Methods:
       - GET
     Name: 获取服务调用api
-    UrlPattern: /sdksvr/deploy/get_api
+    UrlPattern: /deploy/get_api
     Plugins:
       rewrite:
         UrlRewrite: /project/service/api
@@ -290,7 +290,7 @@ APIs:
   - Methods:
       - GET
     Name: 迭代效果/trial列表
-    UrlPattern: /sdksvr/projeffect
+    UrlPattern: /projeffect
     Plugins:
       rewrite:
         UrlRewrite: /project/iterative/effect
@@ -298,7 +298,7 @@ APIs:
   - Methods:
       - GET
     Name: 最终方案
-    UrlPattern: /sdksvr/projscheme
+    UrlPattern: /projscheme
     Plugins:
       rewrite:
         UrlRewrite: /project/trial/scheme
@@ -306,7 +306,7 @@ APIs:
   - Methods:
       - GET
     Name: 模型详情
-    UrlPattern: /sdksvr/model
+    UrlPattern: /model
     Plugins:
       rewrite:
         UrlRewrite: /project/model
@@ -314,7 +314,7 @@ APIs:
   - Methods:
       - GET
     Name: 需要部署的模型详情
-    UrlPattern: /sdksvr/modelselect
+    UrlPattern: /modelselect
     Plugins:
       rewrite:
         UrlRewrite: /project/model/select

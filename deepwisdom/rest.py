@@ -68,7 +68,7 @@ class RESTClientObject(requests.Session):
             if tm > int(time.time()):
                 return self._auth_obj
 
-        obj = self.post(API_URL.AUTH, json={
+        obj = self.post(self.domain+"/"+API_URL.AUTH, json={
             "grant_type": "client_credentials",
             "api_key": self.api_key,
             "secret_key": self.secret_key,

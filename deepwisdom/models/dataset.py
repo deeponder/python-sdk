@@ -25,9 +25,8 @@ def _get_upload_id(file_path):
 
 _base_dataset_schema = t.Dict(
     {
-        t.Key("id") >> "dataset_id": Int,
-        t.Key("file_name", optional=True): String,
-        t.Key("name", optional=True): String,
+        t.Key("dataset_id"): Int,
+        t.Key("dataset_name", optional=True): String,
         t.Key("create_time"): String,
         t.Key("file_size"): Int,
         t.Key("file_type"): Int,
@@ -43,16 +42,14 @@ class Dataset(APIObject):
     def __init__(
         self,
         dataset_id: int,
-        file_name: str = None,
-        name: str = None,
+        dataset_name: str = None,
         create_time: str = None,
         file_size: int = None,
         file_type: int = None
 
     ):
         self.dataset_id = dataset_id
-        self.file_name = file_name
-        self.name = name
+        self.dataset_name = dataset_name
         self.create_time = create_time
         self.file_size = file_size
         self.file_type = file_type
