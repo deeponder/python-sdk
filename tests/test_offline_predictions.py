@@ -21,17 +21,23 @@ from deepwisdom.models.offline_predictions import OfflinePrediction
 class TestOfflinePrediction(TestCase):
     def test_list_predictions(self):
         predict = OfflinePrediction.list_predictions(3833)
+        for pred in predict:
+            detail = pred.get_predict_detail()
+            s = detail.get_predict_status()
+            self.assertEqual(s, 2)
         print(predict)
 
     def test_predict(self):
-        predict = OfflinePrediction.predict_by_model_dataset(5734, 5262)
-        print(json.dumps(predict))
+        predict = OfflinePrediction.predict(5734, 5262)
+        predict.get_predict_status()
+        predict.wait_for_result()
+        self.assertIsNot(predict)
 
     def test_get_predict_detail(self):
-        predict = OfflinePrediction.get_predict_detail(3675)
-        self.assertIsNot(predict.get_status(), 0)
+        predict = OfflinePrediction.get_predict_detail(3672)
+        self.assertIsNot(predict.get_predict_status(), 0)
         predict.wait_for_result()
-        print(predict.get_status())
+        print(predict.get_predict_status())
 
     def test_result_download(self):
         predict = OfflinePrediction.result_download(3833, "./report.zip")

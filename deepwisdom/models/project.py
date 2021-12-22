@@ -16,8 +16,8 @@ from .trial import Trial
 from .solution import Solution
 from .model import ModelInstance
 from .dataset import PredictDataset
-from deepwisdom.models.deployment import Deployment,DeploymentListMember
-from deepwisdom.models.offline_predictions import OfflinePrediction
+from deepwisdom.models.deployment import Deployment, DeploymentListMember
+from deepwisdom.models.offline_predictions import OfflinePrediction, OfflinePredictionListMember
 
 from typing import Optional, List
 from copy import deepcopy
@@ -208,7 +208,6 @@ class Project(APIObject):
 
         cls._client._delete(API_URL.PROJECT_DELETE, data)
 
-
     def update_advance_settings(self, advance_settings: Optional[AdvanceSetting]):
         """
         项目高级设置更新
@@ -368,10 +367,11 @@ class Project(APIObject):
             "project_id": self.project_id
         }
         server_data = self._server_data(API_URL.DEPLOY_LIST_DEPLOYMENTS, data)
-        init_data = [DeploymentListMember._filter_data(DeploymentListMember._converter.check(item)) for item in server_data]
+        init_data = [DeploymentListMember._filter_data(DeploymentListMember._converter.check(item)) for item in
+                     server_data]
         return [DeploymentListMember(**data) for data in init_data]
 
-    def offline_prediction_list(self) -> List[OfflinePrediction]:
+    def offline_prediction_list(self) -> List[OfflinePredictionListMember]:
         """获取项目的预测列表
         Args:
             project_id (uint64): 项目id
@@ -382,8 +382,9 @@ class Project(APIObject):
         }
 
         server_data = self._server_data(API_URL.PREDICTION_LIST, data)
-        init_data = [OfflinePrediction._filter_data(OfflinePrediction._converter.check(item)) for item in server_data]
-        return [OfflinePrediction(**data) for data in init_data]
+        init_data = [OfflinePredictionListMember._filter_data(OfflinePredictionListMember._converter.check(item)) for
+                     item in server_data]
+        return [OfflinePredictionListMember(**data) for data in init_data]
 
     def recommended_select_model(self):
         """
@@ -480,6 +481,18 @@ class Project(APIObject):
 
         init_data = [dict(PredictDataset._safe_data(item)) for item in server_data]
         return [PredictDataset(project_id=self.project_id, **data) for data in init_data]
+
+    def predict_file(self, model_id: int, filename) -> OfflinePrediction:
+        """预测文件
+
+        Returns:
+            OfflinePrediction: 离线预测对象
+        """
+        dataset = self.upload_predict_dataset(filename)
+        if not dataset:
+            return None
+        prediction = OfflinePrediction.predict(model_id, dataset.dataset_id)
+        return prediction
 
 
 class TableRelation(object):

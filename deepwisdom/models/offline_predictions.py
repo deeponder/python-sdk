@@ -15,10 +15,47 @@ from dataclasses import dataclass
 
 
 @dataclass
-class OfflinePredictionDetail(APIObject):
+class OfflinePredictionListMember(APIObject):
     _converter = t.Dict(
         {
             t.Key("offline_id"): Int,
+            t.Key("offline_status"): Int,
+            t.Key("dataset_id"): Int,
+            t.Key("model_inst_id"): Int,  # 模型id
+            t.Key("dataset_name"): String,  # 服务中文名
+        }
+    ).allow_extra("*")
+    offline_id: int = 0
+    offline_status: int = 0
+    dataset_name: str = ''
+    dataset_id: int = 0
+    model_inst_id: int = 0
+
+    def get_predict_detail(self) -> 'OfflinePrediction':
+        """获取离线预测详情
+
+        Args:
+            offline_id (int64): 离线预测id
+        Returns:
+            OfflinePredictionDetail: 离线预测详情
+        """
+        data = {
+            "offline_id": self.offline_id,
+        }
+        rsp = self._server_data(API_URL.PREDICTION_DETAIL, data)
+        if rsp:
+            rsp['offline_id'] = self.offline_id
+            checked = OfflinePrediction._converter.check(rsp)
+            filtered = OfflinePrediction._filter_data(checked)
+            return OfflinePrediction(**filtered)
+
+
+@dataclass
+class OfflinePrediction(APIObject):
+    _converter = t.Dict(
+        {
+            t.Key("offline_id"): Int,
+            t.Key("project_id", optional=True): Int,
             t.Key("ret"): Int,
             t.Key("status"): Int,
             t.Key("task_type"): Int,
@@ -30,6 +67,7 @@ class OfflinePredictionDetail(APIObject):
             t.Key("models_preview_data_cols"): Any,  #
         }
     ).allow_extra("*")
+    project_id: int = 0
     offline_id: int = 0
     ret: int = 0
     status: int = 0
@@ -41,7 +79,57 @@ class OfflinePredictionDetail(APIObject):
     models_preview_data: Any = None
     models_preview_data_cols: Any = None
 
-    def get_status(self):
+    @classmethod
+    def list_predictions(cls, project_id: int) -> List['OfflinePredictionListMember']:
+        """获取预测列表
+        Args:
+            project_id (uint64): 项目id
+
+        """
+        data = {
+            "project_id": project_id,
+        }
+
+        server_data = cls._server_data(API_URL.PREDICTION_LIST, data)
+        init_data = [dict(OfflinePredictionListMember._safe_data(item)) for item in server_data]
+        return [OfflinePredictionListMember(**data) for data in init_data]
+
+    @classmethod
+    def predict(cls, model_inst_id: int, dataset_id: int) -> "OfflinePrediction":
+        """开始离线预测
+
+        Returns:
+            OfflinePrediction: 离线预测实例
+        """
+        data = {
+            "model_inst_id": model_inst_id,
+            "dataset_id": dataset_id,
+        }
+        rsp = cls._client._post(API_URL.PREDICTION_PREDICT, data)
+        if "data" in rsp and rsp['data']['offline_id']:
+            return cls.get_predict_detail(rsp['data']['offline_id'])
+        return None
+
+    @classmethod
+    def get_predict_detail(cls, offline_id: int) -> 'OfflinePrediction':
+        """获取离线预测详情
+
+        Args:
+            offline_id (int64): 离线预测id
+        Returns:
+            OfflinePrediction: 离线预测详情
+        """
+        data = {
+            "offline_id": offline_id,
+        }
+        rsp = cls._server_data(API_URL.PREDICTION_DETAIL, data)
+        if rsp:
+            rsp['offline_id'] = offline_id
+            checked = OfflinePrediction._converter.check(rsp)
+            filtered = OfflinePrediction._filter_data(checked)
+            return OfflinePrediction(**filtered)
+
+    def get_predict_status(self) -> Int:
         """获取离线预测状态
 
         Returns:
@@ -59,7 +147,6 @@ class OfflinePredictionDetail(APIObject):
                 rsp['status'] = 3
             self.from_server_data(filtered)
             return self.status
-
         return Int(0)
 
     def wait_for_result(self):
@@ -67,111 +154,25 @@ class OfflinePredictionDetail(APIObject):
         Returns:
             OfflinePredictionDetail: 离线预测实例
         """
-        status = self.get_status()
+        status = self.get_predict_status()
         while status == 1:
-            status = self.get_status()
+            status = self.get_predict_status()
             time.sleep(3)
         return self
 
-
-@dataclass
-class OfflinePrediction(APIObject):
-    _converter = t.Dict(
-        {
-            t.Key("offline_id"): Int,
-            t.Key("offline_status"): Int,
-            t.Key("dataset_id"): Int,
-            t.Key("model_inst_id"): Int,  # 模型id
-            t.Key("dataset_name"): String,  # 服务中文名
-        }
-    ).allow_extra("*")
-    offline_id: int = 0
-    offline_status: int = 0
-    dataset_name: str = ''
-    dataset_id: int = 0
-    model_inst_id: int = 0
-
     @classmethod
-    def list_predictions(cls, project_id: int) -> List['OfflinePrediction']:
-        """获取预测列表
+    def delete_predictions(cls, offline_ids: List[int]):
+        """批量删除预测
         Args:
-            project_id (uint64): 项目id
-
+            offline_ids (List[int]): 离线预测id数组
         """
         data = {
-            "project_id": project_id,
+            "offline_ids": offline_ids
         }
-
-        server_data = cls._server_data(API_URL.PREDICTION_LIST, data)
-        init_data = [dict(OfflinePrediction._safe_data(item)) for item in server_data]
-        return [OfflinePrediction(**data) for data in init_data]
-
-    def predict(self) -> "OfflinePredictionDetail":
-        """开始离线预测
-
-        Returns:
-            OfflinePredictionDetail: 离线预测实例
-        """
-        data = {
-            "model_inst_id": self.model_inst_id,
-            "dataset_id": self.dataset_id,
-        }
-        rsp = self._client._post(API_URL.PREDICTION_PREDICT, data)
-        if "data" in rsp and rsp['data']['offline_id']:
-            return self.get_predict_detail(rsp['data']['offline_id'])
+        rsp = cls._client._post(API_URL.PREDICTION_DELETE, data)
+        if "data" in rsp:
+            return rsp['data']
         return None
-
-    def get_predict_status(self) -> Int:
-        """获取离线预测状态
-
-        Returns:
-            Int: 服务状态：1-预测中，2-预测完成，3-预测失败
-        """
-        data = {
-            "offline_id": self.offline_id,
-        }
-        rsp = self._server_data(API_URL.PREDICTION_DETAIL, data)
-        if rsp and "status" in rsp:
-            return rsp['status']
-        return Int(0)
-
-    @classmethod
-    def predict_by_model_dataset(cls, model_inst_id: int, dataset_id: int):
-        """开始离线预测
-
-        Args:
-            model_inst_id (int64): 该项目对应的模型实例id
-            dataset_id (int64): 用于离线预测的数据集id
-        Returns:
-            OfflinePredictionDetail: 离线预测实例
-        """
-        data = {
-            "model_inst_id": model_inst_id,
-            "dataset_id": dataset_id,
-        }
-        rsp = cls._client._post(API_URL.PREDICTION_PREDICT, data)
-        if "data" in rsp and rsp['data']['offline_id']:
-            return cls.get_predict_detail(rsp['data']['offline_id'])
-        return None
-
-    @classmethod
-    def get_predict_detail(cls, offline_id: int) -> 'OfflinePredictionDetail':
-        """获取离线预测详情
-
-        Args:
-            offline_id (int64): 离线预测id
-        Returns:
-            OfflinePredictionDetail: 离线预测详情
-        """
-        data = {
-            "offline_id": offline_id,
-        }
-        rsp = cls._server_data(API_URL.PREDICTION_DETAIL, data)
-        if rsp:
-            rsp['offline_id'] = offline_id
-            checked = OfflinePredictionDetail._converter.check(rsp)
-            filtered = OfflinePredictionDetail._filter_data(checked)
-            return OfflinePredictionDetail(**filtered)
 
     @classmethod
     def result_download(cls, project_id: int, target_path: str):
@@ -216,20 +217,6 @@ class OfflinePrediction(APIObject):
             out = open(target_path, "w+")
             out.write(fi)
             out.close()
-        return None
-
-    @classmethod
-    def delete_predictions(cls, offline_ids: List[int]):
-        """批量删除预测
-        Args:
-            offline_ids (List[int]): 离线预测id数组
-        """
-        data = {
-            "offline_ids": offline_ids
-        }
-        rsp = cls._client._post(API_URL.PREDICTION_DELETE, data)
-        if "data" in rsp:
-            return rsp['data']
         return None
 
     @classmethod
