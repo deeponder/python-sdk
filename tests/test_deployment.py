@@ -8,7 +8,7 @@ deploy_id = 480
 
 class TestDeployment(TestCase):
     def test_create_deployment(self):
-        req = CreateDeployRequest(3973, 6113, "魂拷问--晚上吃什么", 1, 2, 3, 1, 1)
+        req = CreateDeployRequest(3973, 6185, "魂拷问--晚上吃什么", 1, 2, 3, 1, 1)
         deploy = Deployment.create_deployment(req)
         self.assertEqual(deploy.project_id, 3976)
         print(deploy)

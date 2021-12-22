@@ -28,7 +28,7 @@ from deepwisdom._compat import Int, String, Any
 from dataclasses import dataclass
 
 
-@dataclass
+# @dataclass
 class CreateDeployRequest(dict):
     project_id: int  # 项目id
     model_inst_id: int  # 模型id
@@ -45,14 +45,14 @@ class CreateDeployRequest(dict):
     #     super().__setattr__(k, v)
     def __init__(self, project_id, model_inst_id, name, gpu_num=1, gpu_mem=1024, memory_limit=1024, min_pod=1,
                  max_pod=10):
-        self.project_id = project_id
-        self.model_inst_id = model_inst_id
-        self.name = name
-        self.gpu_num = gpu_num
-        self.gpu_mem = gpu_mem
-        self.memory_limit = memory_limit
-        self.max_pod = max_pod
-        self.min_pod = min_pod
+        # self.project_id = project_id
+        # self.model_inst_id = model_inst_id
+        # self.name = name
+        # self.gpu_num = gpu_num
+        # self.gpu_mem = gpu_mem
+        # self.memory_limit = memory_limit
+        # self.max_pod = max_pod
+        # self.min_pod = min_pod
 
         super().__init__(project_id=project_id, model_inst_id=model_inst_id, name=name, gpu_num=gpu_num,
                          gpu_mem=gpu_mem, memory_limit=memory_limit, max_pod=max_pod,
@@ -92,12 +92,12 @@ class Deployment(APIObject):
             t.Key("serverless_infer_id"): Int,  # 服务部署id,
             t.Key("token"): String,  # 服务调用token,
             t.Key("token_url"): String,  # 服务调用token,
-            t.Key("infer_lock"): Int,
+            t.Key("infer_lock",optional=True): Int,
             t.Key("min_pod"): Int,
             t.Key("max_pod"): Int,
             t.Key("create_time"): String,  # 2021-10-27 18:43:12,
             t.Key("update_time"): String,  # 2021-10-27 18:43:12,
-            t.Key("deploy_time"): String,  # 2021-10-27 18:43:12,
+            t.Key("deploy_time",optional=True): String,  # 2021-10-27 18:43:12,
             t.Key("is_del"): Int,
         }
     ).allow_extra("*")
