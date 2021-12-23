@@ -28,6 +28,11 @@ class TestProject(unittest.TestCase):
         """
         project = dw.Project.create_from_id(project_id)
         self.assertEqual(project.project_id, project_id)  # add assertion here
+        srv_list = project.service_list()
+        print(srv_list)
+        for srv in srv_list:
+            detail = srv.get_deployment_detail()
+            self.assertEqual(detail.name, srv.service_name)
 
     def test_trial_list(self):
         """
@@ -59,6 +64,7 @@ class TestProject(unittest.TestCase):
         project = dw.Project.create_from_id(project_id)
         predict_dataset = project.upload_predict_dataset(dataset_file_path+dataset_file_name)
         self.assertEqual(project.project_id, predict_dataset.project_id)
+
 
 
 if __name__ == '__main__':
