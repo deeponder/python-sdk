@@ -8,7 +8,7 @@ deploy_id = 480
 
 class TestDeployment(TestCase):
     def test_create_deployment(self):
-        req = CreateDeployRequest(3973, 6185, "魂拷问--晚上吃什么", 1, 2, 3, 1, 1)
+        req = CreateDeployRequest(3973, 6185, "魂拷问--晚上吃什么", 2, 3, 1, 1)
         deploy = Deployment.create_deployment(req)
         self.assertEqual(deploy.project_id, 3976)
         print(deploy)
@@ -52,8 +52,9 @@ class TestDeployment(TestCase):
         print(deploy.get_service_status(deploy_id))
 
     def test_call_service(self):
-        deploy = Deployment.get_service(deploy_id)
-        print(deploy.call_service({}))
+        deploy = Deployment.get_service(546)
+        rsp = deploy.call_service({})
+        print(rsp)
 
     def test_get_service_api(self):
         deploy = Deployment.get_service_api(deploy_id)
