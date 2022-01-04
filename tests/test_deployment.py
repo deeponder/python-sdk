@@ -47,9 +47,9 @@ class TestDeployment(TestCase):
         print(deploy)
 
     def test_get_service(self):
-        deploy = Deployment.get_service(deploy_id)
+        deploy = Deployment.get_service(530)
         print(deploy.status)
-        print(deploy.get_service_status(deploy_id))
+        print(deploy.get_service_status())
 
     def test_call_service(self):
         deploy = Deployment.get_service(546)

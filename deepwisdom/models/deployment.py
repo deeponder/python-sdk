@@ -81,6 +81,10 @@ class Deployment(APIObject):
             t.Key("serverless_infer_id"): Int,  # 服务部署id,
             t.Key("token"): String,  # 服务调用token,
             t.Key("token_url"): String,  # 服务调用token,
+            t.Key("deploy_model", optional=True): String,  # 部署的模型名称,
+            t.Key("route_path", optional=True): String,  # 服务调用api
+            # t.Key("failed_log", optional=True,default=""): String,  # 服务失败日志
+            t.Key("status", optional=True): Int,  # 服务状态
             t.Key("infer_lock", optional=True): Int,
             t.Key("min_pod"): Int,
             t.Key("max_pod"): Int,
@@ -236,7 +240,7 @@ class Deployment(APIObject):
         Returns:
             Int: 服务状态：1-创建，2-调度中，3-调度成功，4-执行中，5-创建失败，6-挂起，7-取消，8-删除中，9- 已删除
         """
-        self.get_deployment_detail(self.id)
+        self.get_service(self.id)
         return self.status
 
     def call_service(self, data: Any) -> Any:
