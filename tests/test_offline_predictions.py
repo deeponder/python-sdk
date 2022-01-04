@@ -31,7 +31,7 @@ class TestOfflinePrediction(TestCase):
         predict = OfflinePrediction.predict(5734, 5262)
         predict.get_predict_status()
         predict.wait_for_result()
-        self.assertIsNot(predict)
+        self.assertIsNot(predict,0)
 
     def test_get_predict_detail(self):
         predict = OfflinePrediction.get_predict_detail(3672)
