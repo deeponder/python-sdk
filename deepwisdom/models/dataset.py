@@ -3,7 +3,9 @@ import json
 import logging
 import os
 import time
+import string
 from io import BytesIO
+from dataclasses import dataclass
 
 import trafaret as t
 import deepwisdom.errors as err
@@ -11,6 +13,8 @@ import deepwisdom.errors as err
 from deepwisdom._compat import Int, String
 from .api_object import APIObject
 from deepwisdom.enums import API_URL
+import numpy as np
+import pandas as pd
 
 
 def _get_upload_id(file_path):
@@ -27,9 +31,9 @@ _base_dataset_schema = t.Dict(
     {
         t.Key("dataset_id"): Int,
         t.Key("dataset_name", optional=True): String,
-        t.Key("create_time"): String,
-        t.Key("file_size"): Int,
-        t.Key("file_type"): Int,
+        t.Key("create_time", optional=True): String,
+        t.Key("file_size", optional=True): Int,
+        t.Key("file_type", optional=True): Int,
     }
 )
 
@@ -90,6 +94,48 @@ class Dataset(APIObject):
         server_data = cls._server_data(API_URL.DATASET_LIST, data)
         init_data = [dict(Dataset._safe_data(item)) for item in server_data]
         return [Dataset(**data) for data in init_data]
+
+    @classmethod
+    def create_from_data_source(
+            cls,
+            conn_info: string,
+            cloud_type: int,
+            source: int,
+            chosed_tables: string
+    ):
+        """
+        目前支持从mysql导入创建
+        Args:
+            conn_info (json字符串): mysql的连接信息。 mysql: {"host":"xxx","port":"3306","user":"xx","password":"xxx","db":"","encoding":"utf8","passwordCustom":"xx"}
+            cloud_type (int): 云类型: 0本地, 1Amazon, 2阿里云, 3腾讯云, 4华为云
+            source (int):  数据来源: 0本地文件, 1mysql, 2oracle, 3mariadb, 4hdfs, 5hive
+            chosed_tables (json字符):  选择的table 列表。 [{"autotables":[{"table_name":"dataset_update_record"}]}]
+
+        Returns:
+            数据集对象数组， 每个表对应一个数据集对象
+        """
+        data = {
+            "conn_info": conn_info,
+            "cloud_type": cloud_type,
+            "source": source,
+            "choosed_tables": chosed_tables
+        }
+
+        resp = cls._client._post(API_URL.DATASET_SUMMIT, data)
+        if resp["code"] != 200 or "data" in resp and "ret" in resp["data"] and resp["data"]["ret"] != 1:
+            raise err.ServerError(resp, resp["code"])
+
+        table_map = resp["data"]["table_map"]
+
+        datasets = []
+        for dataset_id in table_map:
+            data = {
+                "dataset_id": dataset_id
+            }
+            server_data = cls._server_data(API_URL.DATASET_INFO, data)
+            datasets.append(cls.from_server_data(server_data))
+
+        return datasets
 
     @classmethod
     def create_from_file(
@@ -259,6 +305,35 @@ class Dataset(APIObject):
         }
 
         cls._client._patch(API_URL.DATASET_MODIFY, data)
+
+    def get_eda(self):
+        """
+        获取数据集的eda
+        Returns:
+            pandas.DataFrame
+
+        """
+        data = {
+            "dataset_id": self.dataset_id
+        }
+
+        server_data = self._server_data(API_URL.DATASET_EDA, data)
+        return pd.DataFrame(data=server_data["data"], columns=server_data["columns"], index=server_data["index"])
+
+    def modify_eda(self, eda: pd.DataFrame):
+        """
+        修改数据集的eda
+        Args:
+            eda (pandas.DataFrame):
+
+        Returns:
+
+        """
+        data = {
+            "dataset_id": self.dataset_id,
+            "eda": eda.to_json(orient='split')
+        }
+        self._client._patch(API_URL.DATASET_EDA, data)
 
 
 class PredictDataset(APIObject):

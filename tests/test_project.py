@@ -1,5 +1,6 @@
 import unittest
 import deepwisdom as dw
+import json
 
 dataset_file_path = "/Users/up/Downloads/"
 dataset_file_name = "data_upload_test.csv"
@@ -65,7 +66,20 @@ class TestProject(unittest.TestCase):
         predict_dataset = project.upload_predict_dataset(dataset_file_path+dataset_file_name)
         self.assertEqual(project.project_id, predict_dataset.project_id)
 
+    def test_custom_model_hp(self):
+        ss = dw.SearchSpace.create(0, 1)
+        # 修改
+        ss.custom_model_hp(["LIGHTGBM", "CATBOOST"])
 
+        flag = True
+        for sub_ss in ss.search_space_info:
+            if sub_ss["hp_subspace"] == "modeling":
+                for hp_obj in sub_ss["hp_values"]["model"]["hp_values"]:
+                    if hp_obj["hp_name"] == "RANDOMFOREST":
+                        flag = False
+                        break
+
+        self.assertEqual(True, flag)
 
 if __name__ == '__main__':
     unittest.main()

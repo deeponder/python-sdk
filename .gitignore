@@ -159,3 +159,4 @@ log/*
 *.swo
 
 datarobot
+pandas

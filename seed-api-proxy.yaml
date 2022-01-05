@@ -318,3 +318,23 @@ APIs:
     Plugins:
       rewrite:
         UrlRewrite: /project/model/select
+
+  - Methods:
+      - POST
+    Name: 从数据源导入生成数据集
+    UrlPattern: /sdk/connectionsummit
+    Plugins:
+      rewrite:
+        UrlRewrite: /connection/submit
+
+  - Name: 获取数据集的EDA
+    UrlPattern: /sdk/dataseteda
+    Plugins:
+      rewrite:
+        UrlRewrite: /dataset/eda
+
+  - Name: 搜索空间详情
+    UrlPattern: /sdk/modelss
+    Plugins:
+      rewrite:
+        UrlRewrite: /modal/task/ss

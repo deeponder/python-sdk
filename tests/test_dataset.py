@@ -3,7 +3,7 @@ import deepwisdom as dw
 
 dataset_file_path = "/Users/up/Downloads/"
 dataset_file_name = "data_upload_test.csv"
-dataset_id = 6782
+dataset_id = 6999
 
 class TestDataset(unittest.TestCase):
     def __init__(self, *args, **kwargs):
@@ -29,6 +29,35 @@ class TestDataset(unittest.TestCase):
 
         datasets = dw.Dataset.dataset_search(dataset_file_name)
         self.assertEqual(dataset.dataset_id, datasets[0].dataset_id)
+
+    def test_create_from_data_source(self):
+        """
+        从数据源创建
+        Returns:
+
+        """
+        datasets = dw.Dataset.create_from_data_source(
+            '{"host":"192.168.50.26","port":"3306","user":"autotables","password":"v9rf+MmPdzWYF7jmT5uKsD0UltPBVk8l4FOhRkySTJU=","db":"","encoding":"utf8","passwordCustom":"v9rf+MmPdzWYF7jmT5uKsD0UltPBVk8l4FOhRkySTJU="}',
+            0,
+            1,
+            '[{"autotables":[{"table_name":"dataset_update_record"},{"table_name":"scene"}]}]'
+        )
+        flag = False
+        for dataset in datasets:
+            if dataset.dataset_name == "dataset_update_record":
+                flag = True
+        self.assertEqual(True, flag)
+
+
+    def test_modify_eda(self):
+        dataset = dw.Dataset.create_from_dataset_id(dataset_id)
+        eda = dataset.get_eda()
+        # print(eda.loc["is_marry", "dtype"])
+        eda.loc["is_marry", "dtype"] = "c"
+        # print(eda.to_json(orient='split'))
+        dataset.modify_eda(eda)
+        new_eda = dataset.get_eda()
+        self.assertEqual("c", new_eda.loc["is_marry", "dtype"])
 
     def test_create_from_dataset_id(self):
         print(dataset_id)

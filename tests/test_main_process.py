@@ -14,17 +14,20 @@ class TestMainProcess(unittest.TestCase):
         dw.set_client(client=api_client)
         # # 数据集
         dataset = dw.Dataset.create_from_file(dataset_file_path+dataset_file_name, 0)
-        self.assertEqual(dataset.name, dataset_file_name)
+        self.assertEqual(dataset.dataset_name, dataset_file_name)
         time.sleep(60)  #这里需要等dataset都处理完（包括eda啥的）  @chucheng
         # # 项目
         primary_label = "is_marry"
         project_name = "SDK-MAIN-PROCESS-TEST"
         train_setting = dw.TrainSetting(training_program="zhipeng", max_trials=3)
-        settings = dw.AdvanceSetting("off", "ga", 6571, target_train=train_setting)
+        ss = dw.SearchSpace.create(0, 0)
+        ss.custom_model_hp(["LIGHTGBM", "CATBOOST"])
+        settings = dw.AdvanceSetting("off", "ga", 6571, target_train=train_setting, search_space=ss.search_space_info)
         dataset_id = dataset.dataset_id
         # dataset_id = 6062
         project = dw.Project.create_from_dataset(name=project_name, dataset_id=dataset_id, model_type=0, task_type=0,
-                                         scene=1, primary_label=primary_label, primary_main_time_col="", id_cols="", advance_settings=settings)
+                                         scene=1, primary_label=primary_label, primary_main_time_col="", id_cols="",
+                                                 advance_settings=settings, search_space_id=ss.search_space_id)
         self.assertEqual(project.name, project_name)
         ## 训练
         project.wait_train()
