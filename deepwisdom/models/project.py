@@ -186,7 +186,7 @@ class Project(APIObject):
             search_space_id=1,
             icon='{"name": "IconBangong", "label": "办公"}',
             time_size="day",
-            agg_cols=None
+            agg_cols=[]
 
     ):
         """
