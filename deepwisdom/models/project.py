@@ -568,9 +568,9 @@ class Project(APIObject):
         prediction = OfflinePrediction.predict(model_id, dataset.dataset_id)
         return prediction
 
-    def create_service(self, model_id: int, service_name: str, gpu_num: int, gpu_mem: int, mem: int, min_pod: int,
+    def create_service(self, model_id: int, service_name: str, gpu_mem: int, mem: int, min_pod: int,
                        max_pod: int) -> Deployment:
-        req = CreateDeployRequest(self.project_id, model_id, service_name, gpu_num, gpu_mem, mem, min_pod, max_pod)
+        req = CreateDeployRequest(self.project_id, model_id, service_name, gpu_mem, mem, min_pod, max_pod)
         return Deployment.create_deployment(req)
 
 
