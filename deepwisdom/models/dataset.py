@@ -142,9 +142,7 @@ class Dataset(APIObject):
         cls,
         filename: str = None,
         model_type: int = None,
-        annotation_type: int = 1,
         dataset_scene_id: int = 1,
-        sep: str = "\\t",
         max_chunk_size: int = 10*1024*1024
     ):
         """
@@ -152,17 +150,14 @@ class Dataset(APIObject):
         Args:
             filename: 本地数据集的绝对路径
             model_type: 模态类型。 0CSV,1VIDEO,2IMAGE,3SPEECH,4TEXT
-            annotation_type: 标注类型。默认已标注1
             dataset_scene_id: 场景id。默认1 枚举
-            sep: 表格分隔符。 枚举
             max_chunk_size: 分片上传的大小
 
         Returns:
             Dataset
         """
 
-        dataset_id, msg = cls.dataset_upload(filename, model_type, annotation_type,
-                                             dataset_scene_id, sep, max_chunk_size)
+        dataset_id, msg = cls.dataset_upload(filename, model_type, dataset_scene_id, max_chunk_size)
         if dataset_id < 0:
             logging.info(msg)
             raise err.UploadTrainDataError
@@ -192,9 +187,7 @@ class Dataset(APIObject):
         cls,
         file_path: str,
         model_type: int,
-        annotation_type: int,
         dataset_scene_id: int,
-        sep: str,
         max_chunk_size: int
     ):
         """
@@ -202,9 +195,7 @@ class Dataset(APIObject):
         Args:
             file_path:
             model_type:
-            annotation_type:
             dataset_scene_id:
-            sep:
             max_chunk_size:
 
         Returns:
@@ -260,8 +251,6 @@ class Dataset(APIObject):
         dataset_deal_data["upload_id"] = upload_id
         dataset_deal_data["chunk_id_list"] = json.dumps(chunk_id_list)
         dataset_deal_data["modal_type"] = model_type
-        dataset_deal_data["sep"] = sep
-        dataset_deal_data["annotation_type"] = annotation_type
         # 场景Id， 二分等
         dataset_deal_data["dataset_scene_id"] = dataset_scene_id
 

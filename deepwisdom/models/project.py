@@ -184,12 +184,16 @@ class Project(APIObject):
             table_relation=None,
             advance_settings: Optional[AdvanceSetting] = None,
             search_space_id=1,
-            icon='{"name": "IconBangong", "label": "办公"}'
+            icon='{"name": "IconBangong", "label": "办公"}',
+            time_size="day",
+            agg_cols=None
 
     ):
         """
         从现有的数据集创建项目
         Args:
+            agg_cols (): 时间粒度："day","week","month","year"（表格类时序项目必须）
+            time_size (): 聚合列（表格类时序项目必须，用户没有选中列时为空数组）
             dataset_id (int): 数据集id
             name (str): 项目名
             model_type (int): 模态类型。 0CSV,1VIDEO,2IMAGE,3SPEECH,4TEXT
@@ -230,6 +234,8 @@ class Project(APIObject):
         proj_data["advance_settings"] = json.dumps(settings)
         proj_data["search_space_id"] = search_space_id
         proj_data["icon"] = icon
+        proj_data["time_size"] = time_size
+        proj_data["agg_cols"] = agg_cols
 
         resp = cls._client._post(API_URL.PROJECT_CREATE, proj_data)
         if resp["code"] != 200 or "data" in resp and "ret" in resp["data"] and resp["data"]["ret"] != 1:
@@ -260,18 +266,18 @@ class Project(APIObject):
         return cls.from_server_data(server_data)
 
     @classmethod
-    def delete(cls, proj_ids: list):
+    def delete(cls, proj_ids: List):
         """
 
         Args:
-            proj_ids (list):
+            proj_ids (List):
 
         Returns:
 
         """
 
         data = {
-            "project_id": proj_ids
+            "project_ids": proj_ids
         }
 
         cls._client._delete(API_URL.PROJECT_DELETE, data)

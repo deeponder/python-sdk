@@ -45,7 +45,6 @@ API_URL = enum(
     PROJECT_DELETE="sdk/deleteproj",  # 批量删除项目  /projects  DELETE
     PROJECT_ADVANCESETTING_UPDATE="sdk/projsetting",  # 高级设置修改  /project/advance_settings  PATCH
     PROJECT_TRAIN="sdk/projtrain",
-    PROJECT_RETRAIN="sdk/projretrain",
     PROJECT_TERMINATE_TRAIN="sdk/terminatetrain",  # 终止训练  /project/terminate/train
     PROJECT_INFO="sdk/projinfo",
     PROJECT_DATASET_LIST="sdk/projdatasets",  # 项目下的数据集列表 /project/dataset

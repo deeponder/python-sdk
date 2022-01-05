@@ -23,20 +23,12 @@ APIs:
     Plugins:
       rewrite:
         UrlRewrite: /datawarehouse/datasets
-  - Methods:
-      - POST
-    Name: 训练项目
+  - Name: 训练项目
     UrlPattern: /projtrain
     Plugins:
       rewrite:
         UrlRewrite: /project/train
-  - Methods:
-      - POST
-    Name: 重新训练项目
-    UrlPattern: /projretrain
-    Plugins:
-      rewrite:
-        UrlRewrite: /project/train
+
   - Methods:
       - GET
     Name: 获取项目信息
@@ -322,19 +314,27 @@ APIs:
   - Methods:
       - POST
     Name: 从数据源导入生成数据集
-    UrlPattern: /sdk/connectionsummit
+    UrlPattern: /connectionsummit
     Plugins:
       rewrite:
         UrlRewrite: /connection/submit
 
   - Name: 获取数据集的EDA
-    UrlPattern: /sdk/dataseteda
+    UrlPattern: /dataseteda
     Plugins:
       rewrite:
         UrlRewrite: /dataset/eda
 
   - Name: 搜索空间详情
-    UrlPattern: /sdk/modelss
+    UrlPattern: /modelss
     Plugins:
       rewrite:
         UrlRewrite: /modal/task/ss
+
+  - Methods:
+      - GET
+    Name: 模型列表
+    UrlPattern: /modellist
+    Plugins:
+      rewrite:
+        UrlRewrite: /project/models

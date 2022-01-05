@@ -29,8 +29,10 @@ class TestProject(unittest.TestCase):
         """
         project = dw.Project.create_from_id(project_id)
         self.assertEqual(project.project_id, project_id)  # add assertion here
+        # print(project.solution_list()[0].get_detail())
+        # return
+
         srv_list = project.service_list()
-        print(srv_list)
         for srv in srv_list:
             detail = srv.get_deployment_detail()
             self.assertEqual(detail.name, srv.service_name)
@@ -80,6 +82,13 @@ class TestProject(unittest.TestCase):
                         break
 
         self.assertEqual(True, flag)
+
+    def test_delete_proj(self):
+        dw.Project.delete([4317])
+
+    def test_retrain(self):
+        proj = dw.Project.create_from_id(project_id)
+        proj.retrain()
 
 if __name__ == '__main__':
     unittest.main()
