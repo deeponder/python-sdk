@@ -240,8 +240,8 @@ class Deployment(APIObject):
         Returns:
             Int: 服务状态：1-创建，2-调度中，3-调度成功，4-执行中，5-创建失败，6-挂起，7-取消，8-删除中，9- 已删除
         """
-        self.get_service(self.id)
-        return self.status
+        svc = self.get_service(self.id)
+        return svc.status
 
     def call_service(self, data: Any) -> Any:
         """调用服务
