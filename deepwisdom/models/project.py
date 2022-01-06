@@ -515,7 +515,7 @@ class Project(APIObject):
 
     def upload_predict_dataset(self, filename=None):
         """
-
+        上传表格类离线预测数据集
         Args:
             filename (str):
 

@@ -338,3 +338,11 @@ APIs:
     Plugins:
       rewrite:
         UrlRewrite: /project/models
+
+  - Methods:
+      - GET
+    Name:  模型文件下载
+    UrlPattern: /modeldownload
+    Plugins:
+      rewrite:
+        UrlRewrite: /project/model/download
