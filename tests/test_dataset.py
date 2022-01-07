@@ -37,7 +37,7 @@ class TestDataset(unittest.TestCase):
 
         """
         datasets = dw.Dataset.create_from_data_source(
-            '{"host":"192.168.50.26","port":"3306","user":"autotables","password":"v9rf+MmPdzWYF7jmT5uKsD0UltPBVk8l4FOhRkySTJU=","db":"","encoding":"utf8","passwordCustom":"v9rf+MmPdzWYF7jmT5uKsD0UltPBVk8l4FOhRkySTJU="}',
+            '{"host":"192.168.50.26","port":"3306","user":"autotables","password":"Autotables@sdFz@2020","db":"","encoding":"utf8","passwordCustom":"Autotables@sdFz@2020"}',
             0,
             1,
             '[{"autotables":[{"table_name":"dataset_update_record"},{"table_name":"scene"}]}]'

@@ -7,7 +7,8 @@ class TestModel(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestModel, self).__init__(*args, **kwargs)
         api_client = dw.Client(appid=4, api_key="RrTLKoGrgKRXkSJAstcndNLa",
-                               secret_key="xJHb3TjOxh1cqVb0seLBEpHDWLA3fYE7", domain="http://192.168.50.122:30772")
+                               secret_key="xJHb3TjOxh1cqVb0seLBEpHDWLA3fYE7", domain="http://192.168.50.122:30772",
+                               admin_domain="http://tianji-admin.dev.deepwisdomai.com")
         dw.set_client(client=api_client)
 
     def test_download_model(self):
