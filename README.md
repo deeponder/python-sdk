@@ -33,6 +33,7 @@ dataset = dw.Dataset.create_from_file("xxxx", 0)
 6. 推理部署。推理服务创建，获取列表，修改常驻状态，修改推理服务名称，调用服务
 
 # 详细文档
-1. API Reference。 `mkdocs serve -a 127.0.0.1:8000`
+https://deepwisdom-python-sdk-docs.readthedocs.io/zh/latest/
+1. API Reference。 
 2. tutorials
 
